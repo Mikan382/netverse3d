@@ -5,7 +5,7 @@ import bpy
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hero_kit import bake_isolated, finish_hero
-from hero_skyline import build_bridge, build_highrise_a, build_highrise_b, build_highrise_c, build_tower
+from hero_skyline import build_bridge, build_highrise_a, build_highrise_b, build_highrise_c, build_landmark
 
 OUTPUT = sys.argv[sys.argv.index('--') + 1]
 
@@ -20,7 +20,7 @@ def main():
     for material in materials:
         material.use_nodes = True
     built = {}
-    for builder in (build_tower, build_bridge, build_highrise_a, build_highrise_b, build_highrise_c):
+    for builder in (build_landmark, build_bridge, build_highrise_a, build_highrise_b, build_highrise_c):
         part = builder()
         built[part.name] = finish_hero(part, collection, materials)
     bake_isolated(scene, collection, built, materials[0], 'skyline-parts-lightmap', 2.0)

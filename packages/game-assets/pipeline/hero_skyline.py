@@ -67,7 +67,7 @@ def tower_row_selector(ring_index, col_index):
     return 'screen' if (ring_index + col_index) % 2 == 0 else 'wall'
 
 
-def build_tower(name='tower_a'):
+def build_landmark(name='landmark_a'):
     tower = HeroPart(name)
     z_stations = [0.0, 4.0, 8.0, 14.0, 20.0, 26.0, 32.0, 38.0, 44.0, 48.0, 52.0, 55.0]
     rings = [tower_ring_points(z) for z in z_stations]

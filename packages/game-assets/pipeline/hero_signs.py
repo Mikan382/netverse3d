@@ -12,6 +12,10 @@ def ring_xz(half_width, half_height, radius, y):
     return [(x, y, z) for x, z in rounded_rect(0, 0, half_width, half_height, radius, 3)]
 
 
+def ring_xz_at(cx, cz, half_width, half_height, radius, y):
+    return [(x, y, z) for x, z in rounded_rect(cx, cz, half_width, half_height, radius, 3)]
+
+
 def circle_xz(cx, cz, radius, y, steps=14, start=0.0, sweep=2 * math.pi):
     return [(cx + radius * math.cos(start + sweep * i / steps), y, cz + radius * math.sin(start + sweep * i / steps)) for i in range(steps + 1)]
 
@@ -116,3 +120,78 @@ def build_blade(name='blade_a'):
     for z in (0.44, -0.44):
         blade.tube([(0, 0.02, z), (0, 0.2, z)], 0.016, 'metal', sides=5)
     return blade
+
+
+def build_tower_sign(name='tower_a'):
+    sign = HeroPart(name)
+    for z in (-2.4, -0.8, 0.8, 2.4):
+        sign.rounded_box((0, 0.015, z), (0.68, 0.03, 0.12), 'metal', radius=0.01, segments=1)
+        for x in (-0.24, 0.24):
+            sign.tube([(x, 0.03, z), (x, 0.12, z)], 0.024, 'metal', sides=6)
+
+    sign.rounded_box((0, 0.24, 0), (0.84, 0.24, 5.5), 'metal', radius=0.03, segments=1)
+    sign.rounded_box((0, 0.24, 2.77), (0.88, 0.26, 0.06), 'top', radius=0.02, segments=1)
+    sign.rounded_box((0, 0.24, -2.77), (0.88, 0.26, 0.06), 'top', radius=0.02, segments=1)
+
+    sign.rounded_box((0, 0.362, 0), (0.74, 0.008, 5.3), 'body', radius=0.01, segments=1)
+
+    sign.image_rect([
+        (0.32, 0.369, -2.4),
+        (-0.32, 0.369, -2.4),
+        (-0.32, 0.369, 2.4),
+        (0.32, 0.369, 2.4),
+    ], 'decal', (0.0, 0.0, 1.0, 1.0))
+
+    sign.tube(ring_xz(0.355, 2.58, 0.035, 0.376), 0.008, 'strip', sides=5, closed=True)
+    sign.tube(ring_xz(0.325, 2.42, 0.025, 0.376), 0.005, 'accent', sides=4, closed=True)
+
+    for side_x in (-0.37, 0.37):
+        for z in (-2.4, -0.8, 0.8, 2.4):
+            sign.rounded_box((side_x, 0.368, z), (0.04, 0.015, 0.14), 'metal', radius=0.004, segments=1)
+
+    return sign
+
+
+def build_rooftop_sign(name='rooftop_a'):
+    sign = HeroPart(name)
+
+    for x in (-1.2, 1.2):
+        sign.rounded_box((x, -0.36, 0.04), (0.16, 0.8, 0.08), 'metal', radius=0.01, segments=1)
+        sign.tube([(x, 0.0, 0.08), (x, 0.0, 1.82)], 0.035, 'metal', sides=4)
+        sign.tube([(x, -0.72, 0.08), (x, 0.0, 1.78)], 0.032, 'metal', sides=4)
+        sign.tube([(x, -0.36, 0.92), (x, 0.0, 0.92)], 0.024, 'metal', sides=4)
+
+    sign.tube([(-1.2, -0.36, 0.2), (1.2, -0.36, 1.5)], 0.018, 'metal', sides=4)
+    sign.tube([(1.2, -0.36, 0.2), (-1.2, -0.36, 1.5)], 0.018, 'metal', sides=4)
+
+    sign.rounded_box((0, 0.1, 1.15), (3.4, 0.18, 1.35), 'metal', radius=0.025, segments=1)
+    sign.rounded_box((0, 0.194, 1.15), (3.44, 0.02, 1.39), 'top', radius=0.015, segments=1)
+    sign.rounded_box((0, 0.202, 1.15), (3.24, 0.008, 1.19), 'body', radius=0.01, segments=1)
+
+    sign.image_rect([
+        (1.5, 0.208, 0.65),
+        (-1.5, 0.208, 0.65),
+        (-1.5, 0.208, 1.65),
+        (1.5, 0.208, 1.65),
+    ], 'decal', (0.0, 0.0, 1.0, 1.0))
+
+    sign.tube(ring_xz_at(0, 1.15, 1.58, 0.56, 0.04, 0.216), 0.01, 'strip', sides=5, closed=True)
+    sign.tube(ring_xz_at(0, 1.15, 1.51, 0.50, 0.025, 0.216), 0.006, 'accent', sides=4, closed=True)
+
+    for x in (-1.2, -0.4, 0.4, 1.2):
+        lamp_path = [
+            (x, 0.08, 1.83),
+            (x, 0.18, 1.94),
+            (x, 0.32, 1.94),
+            (x, 0.32, 1.88),
+        ]
+        sign.tube(lamp_path, 0.012, 'metal', sides=5)
+        sign.revolve((x, 0.32, 1.86), 'z', [
+            (0.001, 0.04, 'body'),
+            (0.035, 0.04, 'body'),
+            (0.065, 0.0, 'body'),
+            (0.055, 0.0, 'strip'),
+            (0.001, 0.015, 'strip'),
+        ], segments=12)
+
+    return sign

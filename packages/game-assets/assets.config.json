@@ -327,6 +327,16 @@
           "variants": ["a"],
           "maxTriangles": 700,
           "size": [0.2, 1.4, 0.7]
+        },
+        "tower": {
+          "variants": ["a"],
+          "maxTriangles": 1600,
+          "size": [1.0, 5.8, 0.5]
+        },
+        "rooftop": {
+          "variants": ["a"],
+          "maxTriangles": 1800,
+          "size": [3.8, 2.2, 1.4]
         }
       }
     },
@@ -431,7 +441,7 @@
       "generator": "pipeline/make_skyline_kit.py",
       "lightmap": true,
       "slots": {
-        "tower": {
+        "landmark": {
           "variants": ["a"],
           "maxTriangles": 2500,
           "size": [15.0, 66.0, 15.0]
