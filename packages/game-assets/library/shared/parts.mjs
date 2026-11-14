@@ -43,7 +43,8 @@ function partStage(source, environment) {
   const size = box.getSize(new THREE.Vector3());
   const pivot = box.getCenter(new THREE.Vector3());
   const radius = Math.max(size.x, size.y, size.z) * 1.25 + 0.05;
-  const camera = new THREE.PerspectiveCamera(34, 4 / 3, 0.05, 60);
+  const far = Math.max(60, radius * 8);
+  const camera = new THREE.PerspectiveCamera(34, 4 / 3, 0.05, far);
   camera.position
     .set(0.8, 0.6, -1)
     .normalize()

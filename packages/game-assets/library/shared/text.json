@@ -34,9 +34,13 @@
       "lounge-parts.glb": "Góc console",
       "sign-parts.glb": "Biển hiệu",
       "street-parts.glb": "Phố",
-      "room-kit.glb": "Module phòng"
+      "room-kit.glb": "Module phòng",
+      "skyline-parts.glb": "Đường chân trời"
     },
     "slots": {
+      "tower": "Tháp điểm tựa",
+      "bridge": "Cầu dây văng",
+      "highrise": "Nhà cao tầng",
       "desk": "Bàn",
       "monitor": "Màn hình",
       "keyboard": "Bàn phím",

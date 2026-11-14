@@ -33,15 +33,16 @@ Trang cũ nhiều tab giờ là `library/studio.html`. Tab Hành động của n
 
 ## Tệp gốc
 
-| Tệp                     | Chứa                                                                                                               | Mở khi cần                          |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| `character-base.blend`  | Bộ xương `rig`, thân `body`                                                                                        | Sửa dáng người, áo, quần, giày, mặt |
-| `clips.blend`           | 36 clip chuyển động                                                                                                | Sửa hoặc thêm chuyển động           |
-| `hair-default.blend`    | Tóc `hair`                                                                                                         | Nặn lại tóc                         |
-| `accessories.blend`     | `glasses`, `headset`, `backpack`, `cup`, `crate`                                                                   | Sửa phụ kiện và đồ cầm tay          |
-| `props-station.blend`   | Bàn máy liền khối `station`, bản cũ còn dùng cho thư viện                                                          | Không sửa nữa, sẽ thay bằng bộ ô đồ |
-| `parts-station.blend`   | Mười ô đồ của bàn máy: `desk`, `monitor`, `keyboard`, `mouse`, `mat`, `headset`, `mic`, `speaker`, `chair`, `case` | Sửa một món hoặc thêm biến thể      |
-| `environment-kit.blend` | Module phòng: `floor`, `wall`, `corner`, `door`, `window`, `ceiling`, `light`, `marker`                            | Sửa hoặc thêm module phòng          |
+| Tệp                     | Chứa                                                                                                               | Mở khi cần                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| `character-base.blend`  | Bộ xương `rig`, thân `body`                                                                                        | Sửa dáng người, áo, quần, giày, mặt    |
+| `clips.blend`           | 36 clip chuyển động                                                                                                | Sửa hoặc thêm chuyển động              |
+| `hair-default.blend`    | Tóc `hair`                                                                                                         | Nặn lại tóc                            |
+| `accessories.blend`     | `glasses`, `headset`, `backpack`, `cup`, `crate`                                                                   | Sửa phụ kiện và đồ cầm tay             |
+| `props-station.blend`   | Bàn máy liền khối `station`, bản cũ còn dùng cho thư viện                                                          | Không sửa nữa, sẽ thay bằng bộ ô đồ    |
+| `parts-station.blend`   | Mười ô đồ của bàn máy: `desk`, `monitor`, `keyboard`, `mouse`, `mat`, `headset`, `mic`, `speaker`, `chair`, `case` | Sửa một món hoặc thêm biến thể         |
+| `environment-kit.blend` | Module phòng: `floor`, `wall`, `corner`, `door`, `window`, `ceiling`, `light`, `marker`                            | Sửa hoặc thêm module phòng             |
+| `parts-skyline.blend`   | Đường chân trời gợi hình TP.HCM làm nền xa: `tower_a`, `bridge_a`, `highrise_a`, `highrise_b`, `highrise_c`        | Sửa mô hình nền xa (REQ-039, ADR-0014) |
 
 Đối tượng tên `guide_...` là khung dây để canh khoảng cách. Chúng không được xuất ra.
 
@@ -51,6 +52,7 @@ Có hai loại tệp gốc (ADR-0018). Nhân vật, clip, tóc, phụ kiện và
 | ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `parts-station.blend`     | `pipeline/make_station_hero.py` | `hero_kit.py` (HeroPart, loft, cage, bake), `hero_station.py`, `hero_desks.py`, `hero_chair.py`, `hero_mic_boom.py` |
 | `environment-kit.blend`   | `pipeline/make_room_kit.py`     | `hero_kit.py`                                                                                                       |
+| `parts-skyline.blend`     | `pipeline/make_skyline_kit.py`  | `hero_skyline.py`, `hero_kit.py`                                                                                    |
 | `showcase-tim-neon.blend` | `pipeline/make_showcase.py`     | `pipeline/showcase_plan.mjs` sinh `showcase-plan.json` từ công thức và điểm neo của hai bộ đã xuất                  |
 
 `pnpm assets:generate` chạy mọi generator theo thứ tự trong config; thêm tên tệp gốc để chạy một cái, ví dụ `pnpm assets:generate environment-kit`. Lệnh ghi `.blend` vào `source/`, sau đó vẫn phải `pnpm assets:export`. Script trong `pipeline/` không được chứa đường dẫn tuyệt đối tới máy ai (có test chặn), không mang ảnh hay mô hình tham chiếu của bên khác vào repo, và theo cùng luật không chú thích như mã khác. `pipeline/render_part.py` render một món từ tệp `.blend` ra bốn góc để nghiệm thu ngoài trình duyệt.

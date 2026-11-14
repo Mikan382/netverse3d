@@ -55,7 +55,10 @@
     "board": "a",
     "shopfront": "a",
     "storey": "a",
-    "roof": "a"
+    "roof": "a",
+    "tower": "a",
+    "bridge": "a",
+    "highrise": "c"
   },
   "layout": {
     "cells": [4, 3],

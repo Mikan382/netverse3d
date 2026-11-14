@@ -685,6 +685,13 @@
         const offset = new THREE.Vector3(...dir).normalize().multiplyScalar(radius * 1.9);
         controls.target.copy(centre);
         camera.position.copy(centre).add(offset);
+        camera.near = Math.max(0.05, radius * 0.005);
+        camera.far = Math.max(60, radius * 8);
+        camera.updateProjectionMatrix();
+        controls.maxDistance = camera.far * 0.95;
+        const groundScale = Math.max(1, radius / 6);
+        grid.scale.set(groundScale, 1, groundScale);
+        floor.scale.set(groundScale, 1, groundScale);
         controls.update();
         document
           .querySelectorAll('#views [data-view]')
