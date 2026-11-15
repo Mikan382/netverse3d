@@ -490,5 +490,24 @@
       },
       "kits": ["station-parts.glb", "room-kit.glb"]
     }
-  ]
+  ],
+  "environments": {
+    "night-sky": {
+      "id": "night-sky",
+      "name": "Trời đêm phố",
+      "colors": {
+        "zenith": "#080614",
+        "mid": "#140f2d",
+        "horizon": "#24193d",
+        "glow": "#342258",
+        "nadir": "#0c0a18"
+      },
+      "fog": {
+        "color": "#24193d",
+        "near": 16,
+        "far": 90,
+        "density": 0.018
+      }
+    }
+  }
 }

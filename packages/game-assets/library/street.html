@@ -202,6 +202,7 @@
           <button data-toggle="waypoints" aria-pressed="false">Điểm chờ và làn</button>
           <button data-toggle="bloom" aria-pressed="true">Bloom</button>
           <button data-toggle="ao" aria-pressed="true">AO nướng</button>
+          <button data-toggle="fog" aria-pressed="true">Sương</button>
         </div>
         <div id="meter">
           <span>món<b id="mParts">0</b></span>
@@ -248,9 +249,15 @@
       import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
       import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-      import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
-      import { roadLane, sidewalkWaypoints, streetPlan } from '../runtime/street-look.mjs';
+      import {
+        NIGHT_SKY,
+        OUTDOOR_LIGHTING,
+        roadLane,
+        setupOutdoorEnvironment,
+        sidewalkWaypoints,
+        streetPlan,
+      } from '../runtime/street-look.mjs';
       import { buildShop, kitLightmap, shopMaterials } from '../runtime/three-shop.mjs';
 
       const $ = (id) => document.getElementById(id);
@@ -310,10 +317,8 @@
       const anchors = kitAnchors(kit.parser.json);
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color('#0d0a18');
       const pmrem = new THREE.PMREMGenerator(renderer);
-      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-      scene.environmentIntensity = 0.3;
+      setupOutdoorEnvironment(THREE, scene, renderer, { pmrem });
       const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 160);
       const controls = new OrbitControls(camera, canvas);
       controls.enableDamping = true;
@@ -323,13 +328,14 @@
         new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }),
       );
       composer.addPass(new RenderPass(scene, camera));
-      const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.35, 0.4, 0.85);
+      const bloom = new UnrealBloomPass(
+        new THREE.Vector2(1, 1),
+        OUTDOOR_LIGHTING.bloom.strength,
+        OUTDOOR_LIGHTING.bloom.radius,
+        OUTDOOR_LIGHTING.bloom.threshold,
+      );
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
-      scene.add(new THREE.HemisphereLight('#4a36b8', '#120c24', 0.9));
-      const moon = new THREE.DirectionalLight('#9fb4ff', 1.1);
-      moon.position.set(10, 20, 8);
-      scene.add(moon);
 
       const streetGroup = new THREE.Group();
       const helperGroup = new THREE.Group();
@@ -342,6 +348,7 @@
         waypoints: false,
         bloom: true,
         ao: true,
+        fog: true,
       };
       let materials = null;
       let plan = [];
@@ -470,6 +477,15 @@
         button.setAttribute('aria-pressed', String(state[name]));
         if (name === 'bloom') bloom.enabled = state.bloom;
         if (name === 'ao') materials.surface.aoMapIntensity = state.ao ? 1 : 0;
+        if (name === 'fog') {
+          scene.fog = state.fog
+            ? new THREE.Fog(
+                OUTDOOR_LIGHTING.fog.color,
+                OUTDOOR_LIGHTING.fog.near,
+                OUTDOOR_LIGHTING.fog.far,
+              )
+            : null;
+        }
         helperLayer();
       });
 
