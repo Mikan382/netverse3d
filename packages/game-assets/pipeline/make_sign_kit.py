@@ -5,7 +5,16 @@ import bpy
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hero_kit import bake_isolated, finish_hero
-from hero_signs import build_blade, build_rooftop_sign, build_sign_matrix, build_sign_neon, build_sign_painted, build_tower_sign
+from hero_signs import (
+    build_blade,
+    build_festoon,
+    build_lantern,
+    build_rooftop_sign,
+    build_sign_matrix,
+    build_sign_neon,
+    build_sign_painted,
+    build_tower_sign,
+)
 
 OUTPUT = sys.argv[sys.argv.index('--') + 1]
 
@@ -20,7 +29,16 @@ def main():
     for material in materials:
         material.use_nodes = True
     built = {}
-    for builder in (build_sign_neon, build_sign_matrix, build_sign_painted, build_blade, build_tower_sign, build_rooftop_sign):
+    for builder in (
+        build_sign_neon,
+        build_sign_matrix,
+        build_sign_painted,
+        build_blade,
+        build_tower_sign,
+        build_rooftop_sign,
+        build_festoon,
+        build_lantern,
+    ):
         part = builder()
         built[part.name] = finish_hero(part, collection, materials)
     bake_isolated(scene, collection, built, materials[0], 'sign-parts-lightmap', 0.4)

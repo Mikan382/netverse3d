@@ -195,3 +195,94 @@ def build_rooftop_sign(name='rooftop_a'):
         ], segments=12)
 
     return sign
+
+
+def build_festoon(name='festoon_a'):
+    festoon = HeroPart(name)
+    span = 4.0
+    half = span / 2.0
+    anchor_z = 0.38
+    sag = 0.22
+    wire_points = 11
+    wire_path = [
+        (
+            (i / (wire_points - 1)) * span - half,
+            0.0,
+            anchor_z - sag * (1.0 - ((i / (wire_points - 1)) * 2.0 - 1.0) ** 2),
+        )
+        for i in range(wire_points)
+    ]
+    festoon.tube(wire_path, 0.007, 'body', sides=4)
+
+    bulb_count = 9
+    spacing = span / bulb_count
+    for k in range(bulb_count):
+        bx = -half + (k + 0.5) * spacing
+        bz = anchor_z - sag * (1.0 - (bx / half) ** 2)
+        festoon.revolve((bx, 0.0, bz), 'z', [
+            (0.015, 0.006, 'body'),
+            (0.015, -0.022, 'body'),
+            (0.024, -0.052, 'strip'),
+            (0.001, -0.088, 'strip'),
+        ], segments=5)
+
+    return festoon
+
+
+def build_lantern(name='lantern_a'):
+    lantern = HeroPart(name)
+
+    hook_steps = 5
+    hook_radius = 0.018
+    hook_path = [
+        (hook_radius * math.cos(math.pi * i / hook_steps), 0.0, -0.02 + hook_radius * math.sin(math.pi * i / hook_steps))
+        for i in range(hook_steps + 1)
+    ]
+    hook_path.insert(0, (hook_path[0][0], 0.0, -0.038))
+    hook_path.append((hook_path[-1][0], 0.0, -0.038))
+    lantern.tube(hook_path, 0.004, 'metal', sides=4)
+
+    lantern.revolve((0.0, 0.0, 0.0), 'z', [
+        (0.001, -0.038, 'top'),
+        (0.024, -0.042, 'top'),
+        (0.155, -0.092, 'top'),
+        (0.145, -0.102, 'metal'),
+    ], segments=8)
+
+    lantern.revolve((0.0, 0.0, 0.0), 'z', [
+        (0.110, -0.112, 'soft'),
+        (0.118, -0.260, 'soft'),
+        (0.110, -0.415, 'soft'),
+    ], segments=6)
+
+    lantern.revolve((0.0, 0.0, 0.0), 'z', [
+        (0.001, -0.160, 'accent'),
+        (0.042, -0.180, 'accent'),
+        (0.042, -0.340, 'accent'),
+        (0.001, -0.360, 'accent'),
+    ], segments=6)
+
+    lantern.revolve((0.0, 0.0, 0.0), 'z', [
+        (0.145, -0.430, 'metal'),
+        (0.150, -0.450, 'metal'),
+        (0.001, -0.465, 'body'),
+    ], segments=8)
+
+    lantern.revolve((0.0, 0.0, 0.0), 'z', [
+        (0.014, -0.465, 'metal'),
+        (0.014, -0.495, 'metal'),
+        (0.001, -0.505, 'metal'),
+    ], segments=6)
+
+    for i in range(4):
+        angle = i * math.pi / 2.0
+        ca = math.cos(angle)
+        sa = math.sin(angle)
+        rib_path = [
+            (0.155 * ca, 0.155 * sa, -0.100),
+            (0.168 * ca, 0.168 * sa, -0.260),
+            (0.148 * ca, 0.148 * sa, -0.430),
+        ]
+        lantern.tube(rib_path, 0.005, 'metal', sides=4)
+
+    return lantern
