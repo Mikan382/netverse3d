@@ -5,14 +5,19 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import {
+  NIGHT_SKY,
+  OUTDOOR_LIGHTING,
   SIDEWALK_TOP,
   STREET_CELL,
   blockIssues,
   facadePlacements,
   lotFrontage,
   missingParts,
+  nightSkyGradientStops,
   propPlacements,
+  renderNightSkyCanvas,
   roadLane,
+  setupOutdoorEnvironment,
   sidewalkPlacements,
   sidewalkWaypoints,
   streetPlan,
@@ -195,4 +200,98 @@ test('khối phố mẫu chỉ dùng món có trong bộ phố', () => {
   assert.deepEqual(missingParts(streetPlan(SAMPLE), STREET_KIT), []);
   assert.deepEqual(missingParts([{ part: 'tower_a' }], STREET_KIT), ['tower_a']);
   assert.equal(STREET_CELL, 4);
+});
+
+test('vòm trời đêm và bộ ánh sáng ngoài trời có đủ thông số theo chuẩn ADR-0019', () => {
+  const hex = /^#[0-9a-fA-F]{6}$/;
+  for (const [key, color] of Object.entries(NIGHT_SKY)) {
+    assert.match(color, hex, `NIGHT_SKY.${key} phải là mã màu hex 6 chữ số`);
+  }
+  assert.equal(typeof OUTDOOR_LIGHTING.exposure, 'number');
+  assert.equal(typeof OUTDOOR_LIGHTING.environmentIntensity, 'number');
+  assert.equal(OUTDOOR_LIGHTING.fog.color, NIGHT_SKY.horizon);
+  assert.ok(OUTDOOR_LIGHTING.fog.near >= 15);
+  assert.ok(OUTDOOR_LIGHTING.fog.far <= 120);
+  assert.ok(OUTDOOR_LIGHTING.fog.far > OUTDOOR_LIGHTING.fog.near);
+});
+
+test('dải chuyển sắc vòm trời đêm có đủ các mốc từ đỉnh trời xuống quầng sáng chân trời và nền đất', () => {
+  const stops = nightSkyGradientStops(NIGHT_SKY);
+  assert.ok(stops.length >= 5);
+  assert.equal(stops[0].offset, 0);
+  assert.equal(stops[0].color, NIGHT_SKY.zenith);
+  assert.equal(stops.at(-1).offset, 1);
+  assert.equal(stops.at(-1).color, NIGHT_SKY.nadir);
+  const horizonStop = stops.find((s) => s.offset === 0.5);
+  assert.ok(horizonStop);
+  assert.equal(horizonStop.color, NIGHT_SKY.horizon);
+});
+
+test('cấu hình assets.config.json đăng ký thành phần vòm trời ngoài trời theo ADR-0019', () => {
+  assert.ok(CONFIG.environments?.['night-sky']);
+  const env = CONFIG.environments['night-sky'];
+  assert.equal(env.id, 'night-sky');
+  assert.equal(env.colors.zenith, NIGHT_SKY.zenith);
+  assert.equal(env.colors.horizon, NIGHT_SKY.horizon);
+  assert.equal(env.fog.color, OUTDOOR_LIGHTING.fog.color);
+});
+
+test('renderNightSkyCanvas vẽ dải gradient tuyến tính lên canvas', () => {
+  const added = [];
+  const mockCanvas = {
+    width: 512,
+    height: 256,
+    getContext: () => ({
+      createLinearGradient: () => ({
+        addColorStop: (offset, color) => added.push({ offset, color }),
+      }),
+      fillRect: () => {},
+      fillStyle: null,
+    }),
+  };
+  const canvas = renderNightSkyCanvas(mockCanvas, NIGHT_SKY);
+  assert.equal(canvas, mockCanvas);
+  assert.equal(added.length, nightSkyGradientStops(NIGHT_SKY).length);
+});
+
+test('setupOutdoorEnvironment gán nền, sương và môi trường phản chiếu khớp nhau', () => {
+  const scene = { add: () => {} };
+  const renderer = { toneMappingExposure: 0 };
+  const mockTexture = { isTexture: true };
+  const pmrem = {
+    fromEquirectangular: () => ({ texture: { isEnv: true } }),
+  };
+  const result = setupOutdoorEnvironment(
+    {
+      Fog: function (color, near, far) {
+        this.color = color;
+        this.near = near;
+        this.far = far;
+      },
+      HemisphereLight: function (sky, ground, intensity) {
+        this.sky = sky;
+        this.ground = ground;
+        this.intensity = intensity;
+      },
+      DirectionalLight: function (color, intensity) {
+        this.color = color;
+        this.intensity = intensity;
+        this.position = { set: () => {} };
+      },
+    },
+    scene,
+    renderer,
+    {
+      skyTexture: mockTexture,
+      pmrem,
+    },
+  );
+  assert.equal(scene.background, mockTexture);
+  assert.ok(scene.environment);
+  assert.equal(scene.fog.color, NIGHT_SKY.horizon);
+  assert.equal(scene.fog.near, OUTDOOR_LIGHTING.fog.near);
+  assert.equal(scene.fog.far, OUTDOOR_LIGHTING.fog.far);
+  assert.equal(renderer.toneMappingExposure, OUTDOOR_LIGHTING.exposure);
+  assert.ok(result.hemisphere);
+  assert.ok(result.moon);
 });

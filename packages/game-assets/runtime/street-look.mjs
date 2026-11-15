@@ -4,6 +4,39 @@ export const STREET_CELL = 4;
 export const STOREY_HEIGHT = 3.8;
 export const LOT_CELLS = 2;
 export const SIDEWALK_TOP = 0.15;
+export const NIGHT_SKY = {
+  zenith: '#080614',
+  mid: '#140f2d',
+  horizon: '#24193d',
+  glow: '#342258',
+  nadir: '#0c0a18',
+};
+export const OUTDOOR_LIGHTING = {
+  sky: NIGHT_SKY,
+  fog: {
+    color: NIGHT_SKY.horizon,
+    near: 16,
+    far: 90,
+    density: 0.018,
+  },
+  hemisphere: {
+    sky: '#3c2e74',
+    ground: '#120c24',
+    intensity: 0.85,
+  },
+  moon: {
+    color: '#9fb4ff',
+    intensity: 1.1,
+    position: [10, 20, 8],
+  },
+  exposure: 1.0,
+  bloom: {
+    strength: 0.35,
+    radius: 0.4,
+    threshold: 0.85,
+  },
+  environmentIntensity: 0.45,
+};
 const SIDEWALK_DEPTH = 1;
 const ROAD_VARIANT = { straight: 'a', corner: 'b', tee: 'c' };
 const OUTWARD = { south: [0, 1], north: [0, -1], east: [1, 0], west: [-1, 0] };
@@ -218,4 +251,71 @@ export function missingParts(plan, kit) {
     ),
   );
   return [...new Set(plan.map((item) => item.part))].filter((part) => !known.has(part));
+}
+
+export function nightSkyGradientStops(sky = NIGHT_SKY) {
+  return [
+    { offset: 0.0, color: sky.zenith },
+    { offset: 0.32, color: sky.mid },
+    { offset: 0.46, color: sky.glow },
+    { offset: 0.5, color: sky.horizon },
+    { offset: 0.58, color: sky.nadir },
+    { offset: 1.0, color: sky.nadir },
+  ];
+}
+
+export function renderNightSkyCanvas(canvas, sky = NIGHT_SKY) {
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  for (const { offset, color } of nightSkyGradientStops(sky)) {
+    gradient.addColorStop(offset, color);
+  }
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+export function createNightSkyTexture(THREE, options = {}) {
+  const width = options.width ?? 512;
+  const height = options.height ?? 256;
+  const canvas =
+    options.canvas ??
+    (typeof globalThis.document !== 'undefined'
+      ? globalThis.document.createElement('canvas')
+      : null);
+  if (!canvas) throw new Error('canvas is required to create sky texture');
+  canvas.width = width;
+  canvas.height = height;
+  renderNightSkyCanvas(canvas, options.sky ?? NIGHT_SKY);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+export function setupOutdoorEnvironment(THREE, scene, renderer, options = {}) {
+  const lighting = options.lighting ?? OUTDOOR_LIGHTING;
+  const skyTexture = options.skyTexture ?? createNightSkyTexture(THREE, options);
+  scene.background = skyTexture;
+  const pmrem = options.pmrem ?? new THREE.PMREMGenerator(renderer);
+  const envTexture = pmrem.fromEquirectangular(skyTexture).texture;
+  scene.environment = envTexture;
+  scene.environmentIntensity = lighting.environmentIntensity;
+  scene.fog = new THREE.Fog(lighting.fog.color, lighting.fog.near, lighting.fog.far);
+  if (renderer && options.setExposure !== false) {
+    renderer.toneMappingExposure = lighting.exposure;
+  }
+  let hemisphere = null;
+  let moon = null;
+  if (options.addLights !== false) {
+    hemisphere = new THREE.HemisphereLight(
+      lighting.hemisphere.sky,
+      lighting.hemisphere.ground,
+      lighting.hemisphere.intensity,
+    );
+    moon = new THREE.DirectionalLight(lighting.moon.color, lighting.moon.intensity);
+    moon.position.set(...lighting.moon.position);
+    scene.add(hemisphere, moon);
+  }
+  return { skyTexture, envTexture, pmrem, hemisphere, moon };
 }
