@@ -337,6 +337,20 @@
           "variants": ["a"],
           "maxTriangles": 1800,
           "size": [3.8, 2.2, 1.4]
+        },
+        "festoon": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [4.02, 0.45, 0.15],
+          "grid": {
+            "size": 4,
+            "axes": [0]
+          }
+        },
+        "lantern": {
+          "variants": ["a"],
+          "maxTriangles": 400,
+          "size": [0.4, 0.55, 0.4]
         }
       }
     },

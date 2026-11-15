@@ -81,6 +81,8 @@ Bộ biển hiệu (`sign-parts.glb`, REQ-040, ADR-0018) gồm các biển ngang
 - `blade` (biển vẫy hai mặt): khung 0,2 × 1,4 × 0,7 m. Mặt chữ `decal` kích thước 0,26 × 1,04 m, tỉ lệ ngang : dọc là 1 : 4.
 - `tower` (biển dọc cao tầng): khung 0,9 × 5,6 × 0,4 m, gắn mặt đứng hai tầng nhà, gốc toạ độ ở tâm mặt lưng gắn tường. Mặt chữ `decal` kích thước 0,64 × 4,8 m, tỉ lệ ngang : dọc là 1 : 7,5.
 - `rooftop` (biển đứng trên mái): khung 3,6 × 1,8 × 0,9 m, có chân chống giàn thép chữ A và đèn rọi đỉnh, gốc toạ độ giữa mặt đáy. Mặt chữ `decal` kích thước 3,0 × 1,0 m, tỉ lệ ngang : dọc là 3 : 1.
+- `festoon` (dây đèn giăng ngang hẻm): dài 4,0 m võng nhẹ, chín bóng tròn phát sáng (`strip`), dây và đui đèn (`body`), hai đầu neo ở cùng cao độ để nối liên tiếp trên lưới 4 m, mức trần 500 tam giác.
+- `lantern` (đèn lồng treo): cao 0,5 m theo phong cách hiện đại, khung và nắp chụp kim loại (`metal`, `top`), chụp khuếch tán tản sáng (`soft`), lõi phát sáng bên trong (`accent`), gốc toạ độ ở móc treo đỉnh, mức trần 400 tam giác.
 
 Mọi biển hiệu dùng vật liệu `decal` với toạ độ UV phủ trọn `(0, 0, 1, 1)` để hệ thống vẽ tên tiệm khi chạy phủ đúng tỉ lệ, kết hợp các vòng ống neon viền nổi `strip` và `accent` trên nền tối `body`.
 

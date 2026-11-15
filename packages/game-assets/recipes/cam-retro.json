@@ -57,7 +57,9 @@
     "bridge": "a",
     "highrise": "b",
     "tower": "a",
-    "rooftop": "a"
+    "rooftop": "a",
+    "festoon": "a",
+    "lantern": "a"
   },
   "layout": {
     "cells": [3, 3],
