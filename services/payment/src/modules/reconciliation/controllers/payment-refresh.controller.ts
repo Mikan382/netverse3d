@@ -3,9 +3,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CurrentTenant,
   CurrentTenantPayload,
-} from '@app/common/decorators/current-tenant.decorator';
-import { ApiEnvelope } from '@app/common/swagger/api-envelope.decorators';
-import { Audit } from '@app/modules/audit/audit.decorator';
+} from '@app/modules/auth/decorators/current-tenant.decorator';
+import { ApiEnvelope } from '@netverse/nest-kit';
+import { Audit } from '@netverse/nest-kit';
 import { resourceIdFromParam } from '@app/modules/audit/audit-resource';
 import { ApiKeyAuth } from '@app/modules/auth/decorators/api-key-auth.decorator';
 import { PaymentIntentResponseDto } from '@app/modules/payments/dto/payment-response.dto';

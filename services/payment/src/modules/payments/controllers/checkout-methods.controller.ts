@@ -3,8 +3,8 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CurrentTenant,
   CurrentTenantPayload,
-} from '@app/common/decorators/current-tenant.decorator';
-import { ApiEnvelope } from '@app/common/swagger/api-envelope.decorators';
+} from '@app/modules/auth/decorators/current-tenant.decorator';
+import { ApiEnvelope } from '@netverse/nest-kit';
 import { ApiKeyAuth } from '@app/modules/auth/decorators/api-key-auth.decorator';
 import { CheckoutMethodsResponseDto } from '../dto/payment-response.dto';
 import { CheckoutMethodsService } from '../services/checkout-methods.service';
