@@ -42,7 +42,8 @@ Trang cũ nhiều tab giờ là `library/studio.html`. Tab Hành động của n
 | `props-station.blend`   | Bàn máy liền khối `station`, bản cũ còn dùng cho thư viện                                                          | Không sửa nữa, sẽ thay bằng bộ ô đồ    |
 | `parts-station.blend`   | Mười ô đồ của bàn máy: `desk`, `monitor`, `keyboard`, `mouse`, `mat`, `headset`, `mic`, `speaker`, `chair`, `case` | Sửa một món hoặc thêm biến thể         |
 | `environment-kit.blend` | Module phòng: `floor`, `wall`, `corner`, `door`, `window`, `ceiling`, `light`, `marker`                            | Sửa hoặc thêm module phòng             |
-| `parts-skyline.blend`   | Đường chân trời gợi hình TP.HCM làm nền xa: `tower_a`, `bridge_a`, `highrise_a`, `highrise_b`, `highrise_c`        | Sửa mô hình nền xa (REQ-039, ADR-0014) |
+| `parts-signs.blend`     | Bộ biển hiệu: biển ngang `sign`, biển vẫy `blade`, biển dọc `tower`, biển nóc nhà `rooftop`                        | Sửa hoặc thêm biển hiệu (REQ-040)      |
+| `parts-skyline.blend`   | Đường chân trời gợi hình TP.HCM làm nền xa: `landmark_a`, `bridge_a`, `highrise_a`, `highrise_b`, `highrise_c`     | Sửa mô hình nền xa (REQ-039, ADR-0014) |
 
 Đối tượng tên `guide_...` là khung dây để canh khoảng cách. Chúng không được xuất ra.
 
@@ -51,6 +52,7 @@ Có hai loại tệp gốc (ADR-0018). Nhân vật, clip, tóc, phụ kiện và
 | Tệp gốc                   | Script                          | Thư viện dùng chung                                                                                                 |
 | ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `parts-station.blend`     | `pipeline/make_station_hero.py` | `hero_kit.py` (HeroPart, loft, cage, bake), `hero_station.py`, `hero_desks.py`, `hero_chair.py`, `hero_mic_boom.py` |
+| `parts-signs.blend`       | `pipeline/make_sign_kit.py`     | `hero_signs.py`, `hero_kit.py`                                                                                      |
 | `environment-kit.blend`   | `pipeline/make_room_kit.py`     | `hero_kit.py`                                                                                                       |
 | `parts-skyline.blend`     | `pipeline/make_skyline_kit.py`  | `hero_skyline.py`, `hero_kit.py`                                                                                    |
 | `showcase-tim-neon.blend` | `pipeline/make_showcase.py`     | `pipeline/showcase_plan.mjs` sinh `showcase-plan.json` từ công thức và điểm neo của hai bộ đã xuất                  |
@@ -70,6 +72,17 @@ Thêm cờ `--preview` để bỏ bước nướng AO khi đang tìm dáng một
 Mỗi `kit` có một tệp gốc, một tệp xuất và danh sách ô đồ `slots`. Mỗi ô khai `variants`, `maxTriangles`, `size`, và tuỳ chọn `anchors`, `grid`. Đối tượng trong Blender đặt tên `<ô>_<biến thể>`, ví dụ `chair_a`. Thêm biến thể `b` là thêm đối tượng `chair_b` và thêm `"b"` vào `variants`. Mọi biến thể của một ô phải nằm gọn trong `size` (rộng, cao, sâu, tính bằng mét) để đổi món không làm vỡ bố cục.
 
 Gốc đối tượng nằm dưới chân món, giữa mặt đáy. Người chơi ngồi ở phía +Y của bàn và nhìn về −Y; ghế quay mặt về −Y. Apply mọi transform trước khi xuất, đối tượng còn transform sẽ bị lệnh xuất từ chối.
+
+### Biển hiệu và tỉ lệ mặt chữ decal
+
+Bộ biển hiệu (`sign-parts.glb`, REQ-040, ADR-0018) gồm các biển ngang, biển vẫy, biển dọc cao tầng và biển nóc nhà:
+
+- `sign` (biển ngang gắn tường): khung 2 × 0,75 × 0,3 m. Mặt chữ `decal` kích thước 1,2 × 0,3 m, tỉ lệ ngang : dọc là 4 : 1.
+- `blade` (biển vẫy hai mặt): khung 0,2 × 1,4 × 0,7 m. Mặt chữ `decal` kích thước 0,26 × 1,04 m, tỉ lệ ngang : dọc là 1 : 4.
+- `tower` (biển dọc cao tầng): khung 0,9 × 5,6 × 0,4 m, gắn mặt đứng hai tầng nhà, gốc toạ độ ở tâm mặt lưng gắn tường. Mặt chữ `decal` kích thước 0,64 × 4,8 m, tỉ lệ ngang : dọc là 1 : 7,5.
+- `rooftop` (biển đứng trên mái): khung 3,6 × 1,8 × 0,9 m, có chân chống giàn thép chữ A và đèn rọi đỉnh, gốc toạ độ giữa mặt đáy. Mặt chữ `decal` kích thước 3,0 × 1,0 m, tỉ lệ ngang : dọc là 3 : 1.
+
+Mọi biển hiệu dùng vật liệu `decal` với toạ độ UV phủ trọn `(0, 0, 1, 1)` để hệ thống vẽ tên tiệm khi chạy phủ đúng tỉ lệ, kết hợp các vòng ống neon viền nổi `strip` và `accent` trên nền tối `body`.
 
 ### Điểm neo
 

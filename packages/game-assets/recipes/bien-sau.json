@@ -53,9 +53,11 @@
     "shopfront": "a",
     "storey": "b",
     "roof": "a",
-    "tower": "a",
+    "landmark": "a",
     "bridge": "a",
-    "highrise": "a"
+    "highrise": "a",
+    "tower": "a",
+    "rooftop": "a"
   },
   "layout": {
     "cells": [3, 4],
