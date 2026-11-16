@@ -529,5 +529,83 @@
       "maxDynamicLightsPerBlock": 6,
       "bakeBouncedLight": true
     }
+  },
+  "weather": {
+    "states": {
+      "clear": {
+        "id": "clear",
+        "name": "Tạnh",
+        "rainCount": 0,
+        "rainSpeed": 0,
+        "windAngle": 0,
+        "wetness": 0.0,
+        "fog": {
+          "color": "#24193d",
+          "near": 16,
+          "far": 90,
+          "density": 0.018
+        },
+        "exposure": 1.0,
+        "environmentIntensity": 0.45,
+        "droplets": 0.0
+      },
+      "lightRain": {
+        "id": "lightRain",
+        "name": "Mưa nhẹ",
+        "rainCount": 600,
+        "rainSpeed": 14.0,
+        "windAngle": 0.12,
+        "wetness": 0.65,
+        "fog": {
+          "color": "#201636",
+          "near": 12,
+          "far": 75,
+          "density": 0.024
+        },
+        "exposure": 0.95,
+        "environmentIntensity": 0.4,
+        "droplets": 0.5
+      },
+      "heavyRain": {
+        "id": "heavyRain",
+        "name": "Mưa lớn",
+        "rainCount": 1800,
+        "rainSpeed": 22.0,
+        "windAngle": 0.28,
+        "wetness": 1.0,
+        "fog": {
+          "color": "#1a122c",
+          "near": 8,
+          "far": 55,
+          "density": 0.035
+        },
+        "exposure": 0.88,
+        "environmentIntensity": 0.35,
+        "droplets": 1.0
+      },
+      "denseFog": {
+        "id": "denseFog",
+        "name": "Sương dày",
+        "rainCount": 0,
+        "rainSpeed": 0,
+        "windAngle": 0,
+        "wetness": 0.25,
+        "fog": {
+          "color": "#281c44",
+          "near": 4,
+          "far": 35,
+          "density": 0.045
+        },
+        "exposure": 0.92,
+        "environmentIntensity": 0.32,
+        "droplets": 0.2
+      }
+    },
+    "cycle": {
+      "cycleDuration": 180,
+      "transitionDuration": 30,
+      "dryingDuration": 90,
+      "defaultSeed": "netverse-saigon"
+    }
   }
 }
