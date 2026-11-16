@@ -184,7 +184,7 @@ Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standar
 
 ### Hệ thống thời tiết ngẫu nhiên và hiệu ứng mưa phố đêm
 
-Theo [REQ-043](../../requirements/registry.yaml), [ADR-0014](../../decisions/ADR-0014-always-night-scene-and-camera-feel.md) và [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thành phố luôn là ban đêm nhưng thời tiết biến đổi ngẫu nhiên, tất định giữa 4 trạng thái theo chu kỳ khai báo tại `runtime/weather.mjs` và cấu hình `assets.config.json`:
+Theo `REQ-043`, [ADR-0014](../../decisions/ADR-0014-saigon-cyber-and-own-characters.md) và [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thành phố luôn là ban đêm nhưng thời tiết biến đổi ngẫu nhiên, tất định giữa 4 trạng thái theo chu kỳ khai báo tại `runtime/weather.mjs` và cấu hình `assets.config.json`:
 
 | Trạng thái    | Mã định danh | Mật độ sương (`density`) | Số hạt mưa (`rainCount`) | Tốc độ rơi (`speed`) | Độ ướt (`wetness`) | Đặc tả mỹ thuật (tiêu chí T1, T2, M1, M2)                                                                 |
 | :------------ | :----------- | :----------------------- | :----------------------- | :------------------- | :----------------- | :-------------------------------------------------------------------------------------------------------- |
