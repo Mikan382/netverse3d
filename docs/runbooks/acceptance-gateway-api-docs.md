@@ -41,7 +41,7 @@ Một thao tác có thể báo thành công dù không đổi trạng thái; vì
 
 #### TC-03 · Đặc tả trỏ Try it out về Gateway [dương]
 
-**Kỳ vọng:** Ba JSON tại `/docs/<service>.json` đều trả 200, có `servers[0].url` lần lượt `/api/identity`, `/api/media`, `/api/notification`. Identity có `/v1/auth/providers`, Media có `/v1/media`, Notification có `/v1/inbox`; không có path `/healthz`, `/livez`, JWKS hoặc `/docs-json`.
+**Kỳ vọng:** Ba JSON tại `/docs/identity.json`, `/docs/media.json` và `/docs/notification.json` đều trả 200, có `servers[0].url` lần lượt `/api/identity`, `/api/media`, `/api/notification`. Identity có `/v1/auth/providers`, Media có `/v1/media`, Notification có `/v1/inbox`; không có path `/healthz`, `/livez`, JWKS hoặc `/docs-json`.
 
 **Bước:** Đọc `servers` và `paths` trong từng JSON; ở UI mở một operation và xem URL request. Nếu request dùng cổng riêng của service hoặc rời cùng origin, giả thuyết “Try it out qua Gateway” sai; kiểm bước sinh spec.
 
@@ -51,7 +51,7 @@ Một thao tác có thể báo thành công dù không đổi trạng thái; vì
 
 **Kỳ vọng:** Từ UI Identity, `GET /v1/auth/providers` trả 200. Từ UI Media, `GET /v1/media` khi chưa đăng nhập trả 401; sau khi nhập token hợp lệ của `P1`, request tới đúng `/api/media/v1/media` và trả theo quyền của `P1`. JSON mô tả được API quản trị và token dịch vụ, nhưng việc nhìn thấy operation không cấp quyền gọi.
 
-**Bước:** Dùng nút `Try it out`, ghi request URL và status; nhập token thử vào nút Authorize rồi thử lại. Nếu request bỏ qua Gateway hoặc request không token được 200, giả thuyết kiểm quyền sai; dừng nghiệm thu.
+**Bước:** Dùng nút `Try it out`, ghi request URL và status; nhập token thử vào nút Authorize rồi thử lại. Khi đổi service ở menu, chọn Authorize và nhập token lại cho spec vừa chọn. Nếu request bỏ qua Gateway hoặc request không token được 200, giả thuyết kiểm quyền sai; dừng nghiệm thu.
 
 **Nếu khác kỳ vọng:** Giả thuyết sai; dừng nghiệm thu và kiểm xác thực của service.
 
@@ -65,7 +65,7 @@ Một thao tác có thể báo thành công dù không đổi trạng thái; vì
 
 #### TC-06 · Đường nội bộ vẫn bị chặn [âm]
 
-**Kỳ vọng:** `/api/<service>/docs`, `/api/<service>/docs-json`, `/api/<service>/healthz` và đường chứa `..` hoặc ký tự mã hoá không trả nội dung Swagger hoặc health nội bộ. Bộ `pnpm test:gateway` kiểm các đường này.
+**Kỳ vọng:** Với Identity, Media và Notification, các đường nội bộ như `/api/identity/docs`, `/api/identity/docs-json`, `/api/identity/healthz` cùng đường tương ứng của hai service còn lại không trả nội dung Swagger hoặc health. Đường chứa `..` hoặc ký tự mã hoá cũng bị chặn. Bộ `pnpm test:gateway` kiểm các đường này.
 
 **Bước:** Gọi trực tiếp các đường nội bộ qua Gateway và chạy `pnpm test:gateway`; đọc status và nội dung phản hồi.
 
@@ -75,15 +75,15 @@ Nếu một đường trả JSON nội bộ, giả thuyết “chỉ spec đã l
 
 ## 3. Kết quả đã ghi
 
-| Ca    | Kết quả | Môi trường                | Quan sát                                                                                                                                         |
-| ----- | ------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| TC-01 | Pass    | Compose gốc trên cổng thử | Năm URL docs và `/api/identity/docs-json` trả 404                                                                                                |
-| TC-01 | N/A     | Staging/production thật   | Chưa có môi trường để gọi HTTP                                                                                                                   |
-| TC-02 | Pass    | k3d local và Compose dev  | UI, config và ba JSON trả 200; Chrome trên k3d chọn lần lượt ba service, hiện đúng tên và endpoint                                               |
-| TC-03 | Pass    | k3d local                 | Test e2e kiểm ba `servers`, path đại diện và cùng origin                                                                                         |
-| TC-04 | Pass    | k3d local                 | Chrome dùng `Try it out` gọi `/api/identity/v1/auth/providers` được 200 và `/api/media/v1/media` không token được 401; smoke kiểm token có quyền |
-| TC-05 | Pass    | k3d local                 | `pnpm smoke:k8s` kiểm các phản hồi 403 theo vai trò và tenant                                                                                    |
-| TC-06 | Pass    | k3d local                 | Gateway test 12/12, đường nội bộ 404                                                                                                             |
+| Ca    | Kết quả | Môi trường                | Quan sát                                                                                                                                                                               |
+| ----- | ------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TC-01 | Pass    | Compose gốc trên cổng thử | Năm URL docs và `/api/identity/docs-json` trả 404                                                                                                                                      |
+| TC-01 | N/A     | Staging/production thật   | Chưa có môi trường để gọi HTTP                                                                                                                                                         |
+| TC-02 | Pass    | k3d local và Compose dev  | UI, config và ba JSON trả 200; Chrome trên k3d chọn lần lượt ba service, hiện đúng tên và endpoint                                                                                     |
+| TC-03 | Pass    | k3d local                 | Test e2e kiểm ba `servers`, path đại diện và cùng origin                                                                                                                               |
+| TC-04 | Pass    | k3d local                 | Chrome gọi `/api/identity/v1/auth/providers` được 200; Media không token trả 401, sau Authorize bằng token player thì `/api/media/v1/media` trả 200 qua Gateway                        |
+| TC-05 | Pass    | k3d local                 | Chrome dùng Authorize: token player gọi `/api/identity/v1/audit-logs` trả 403, token admin trả 200; cả hai request có Bearer qua Gateway. `pnpm smoke:k8s` kiểm thêm quyền theo tenant |
+| TC-06 | Pass    | k3d local                 | Gateway test 12/12, đường nội bộ 404                                                                                                                                                   |
 
 ## 4. Diễn giải
 
