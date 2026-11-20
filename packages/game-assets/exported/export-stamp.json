@@ -1,5 +1,5 @@
 {
-  "config": "c8c9404726340d362b5e07412e3c9a35fda2e143b0b11eccbf0a2975288b8329",
+  "config": "ac957b3c7977180aef469b55ff58334eae43ff8bce3c9f7e876abb42f91b9e60",
   "sources": {
     "character-base.blend": "d95d6a4244635eb30bb06af70a11946ba1091dce9676af811f9d910123f1b445",
     "clips.blend": "99383511e93e0cab91a401957c879dd4889c5ebd1c446689319f28de676cddfb",
@@ -14,7 +14,8 @@
     "parts-street.blend": "cf5acd3327d630f8ffecce104201d2fec728ddb9c0e64e82377bd9d77c1e657c",
     "parts-skyline.blend": "1afe48889818a4109d61980a8df0695709275296b1ad65f81dec1f45d0f1ff82",
     "parts-vehicles.blend": "c56015e3488dcd718238c1677428845babb099eb77c47436f463a94b1a1407bd",
-    "showcase-tim-neon.blend": "1c893d1ac8aefae926fd49d979500cfd2b8079cc837b472610afd96771ccdf70"
+    "showcase-tim-neon.blend": "1c893d1ac8aefae926fd49d979500cfd2b8079cc837b472610afd96771ccdf70",
+    "showcase-hem-mau.blend": "ee179c4903ccaafe17ac9898df5517b9d20351d3de1ae76b35b06bdcc3eab77e"
   },
   "exported": {
     "player.glb": "aa38e78f59488785a874092ee5a7c3b8e2040929203ca6872a4942605b0e78c4",
@@ -30,6 +31,9 @@
     "vehicle-parts.glb": "16e10e2edfc773c9560b938aa1a25613bda4e1d7344863b21edc0d4186dc3774",
     "showcase-tim-neon.glb": "2c5acfe482d39e88881cbea75257c054cafea21bd19a65356744b3d9b780e4d7",
     "showcase-tim-neon-base.jpg": "a5766f32c59ca74f54b2431a17acd0f067768e556289d33d964cd36837d4cec0",
-    "showcase-tim-neon-spill.jpg": "64a0e9d62da6f2b90eb30720c4b15fa821ba096ae81982ea66fecad037bff684"
+    "showcase-tim-neon-spill.jpg": "64a0e9d62da6f2b90eb30720c4b15fa821ba096ae81982ea66fecad037bff684",
+    "showcase-hem-mau.glb": "acd609640a6faff92bae00b1534257a91d97bf2250f6fcbdfe47ce0b224ee48f",
+    "showcase-hem-mau-base.jpg": "d3e9c3175e8e4390f3b14859a178ecdd3190eb97d8fc22aa330ac2c4ccf9cc53",
+    "showcase-hem-mau-spill.jpg": "e93623a4fe2d1ec8e7526b6b2767fd8a96680286600708410c32ca0d3a42732c"
   }
 }
