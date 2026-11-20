@@ -215,6 +215,20 @@ Theo `REQ-043`, [ADR-0014](../../decisions/ADR-0014-saigon-cyber-and-own-charact
   - Mức `medium`: 50% hạt mưa.
   - Mức `low`: Tắt hoàn toàn hạt mưa (`rainCount: 0`) nhưng giữ nguyên trạng thái thời tiết, mật độ sương và độ ướt mặt đường, đảm bảo trải nghiệm mỹ thuật đồng nhất trên thiết bị yếu.
 
+### Pháo hoa dịp lễ Tết trên bầu trời đêm (REQ-039)
+
+Theo `REQ-039` và [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), bầu trời đêm thành phố kích hoạt hiệu ứng pháo hoa rực rỡ vào các dịp lễ Tết truyền thống và sự kiện lớn:
+
+- **Hệ thống hạt pháo hoa (`createFireworksSystem`)**: Module `runtime/fireworks.mjs` quản lý hệ thống hạt GPU (`THREE.Points`) với bộ đệm đỉnh tĩnh `Float32Array` không cấp phát rác (zero GC). Các vụ nổ toả hình cầu đều với gia tốc trọng lực nhẹ (`gravity: 3.8`), lực cản khí động (`drag: 0.965`) và phân rã độ trong suốt theo tuổi thọ hạt (`maxAge`).
+- **Kích hoạt hiệu ứng quầng sáng Bloom**: Mỗi hạt pháo hoa sử dụng bảng màu rực rỡ `FIREWORK_COLORS` nhân cường độ `bloomBoost: 2.2` kết hợp `toneMapped: false` và chế độ hoà trộn `AdditiveBlending`. Nhờ đó hạt tự động vượt ngưỡng bloom `threshold: 0.85` của chuẩn bloom ADR-0019, tạo quầng hào quang phát sáng mà không cần pass xử lý riêng.
+- **Lịch sự kiện lễ Tết (`HOLIDAY_SCHEDULE`)**:
+  - **Lễ Dương lịch**: Giao thừa Dương lịch (`12-31`), Tết Dương lịch (`01-01`), Giải phóng miền Nam (`04-30`), Quốc tế Lao động (`05-01`), Đêm trước Quốc khánh (`09-01`), Quốc khánh (`09-02`).
+  - **Tết Nguyên Đán**: Tra cứu động âm lịch từ năm 2025 đến 2030, tự động nhận diện đêm giao thừa (tần suất bắn dồn dập `burstRate: 1.5`) và các ngày Tết (mùng 1 đến mùng 4 với `burstRate: 1.1`).
+  - Hàm `getHolidayEvent(dateInput)` và `isHolidayFireworks(dateInput)` kiểm tra lịch theo ngày hiện tại hoặc chuỗi ngày ISO `YYYY-MM-DD`.
+- **Tích hợp kiểm tra trong thư viện 3D**:
+  - Trang hẻm khối phố `library/street.html` và trang cảnh giới thiệu `library/showcase.html` hỗ trợ kiểm tra qua tham số URL `?fireworks=1` hoặc `?date=YYYY-MM-DD` (ví dụ `?date=2026-02-16` để kiểm tra đêm giao thừa Tết Bính Ngọ).
+  - Cung cấp nút bật/tắt pháo hoa trên thanh hiển thị và danh sách chọn giả lập sự kiện lễ Tết trong bảng điều khiển.
+
 ### Module phòng
 
 Phòng ghép từ module trên lưới ô 2 m, tường cao 3,6 m; cửa cao 2,28 m, phần tường phía trên cửa để treo biển; dải hắt sáng của trần mỏng 12 cm với đáy ở 3,36 m. Gốc module ở tâm ô, trên sàn. Tường nằm dọc cạnh −Y của ô và quay mặt vào trong. Ô khai `grid` phải có kích thước là bội số của ô lưới trên các trục đã khai (trục của glTF: 0 là ngang, 2 là sâu), nếu không lệnh xuất báo lỗi. Tường, góc, cửa, cửa sổ mang hộp `collision_*`. Module góc là một khối liền: hai cánh tường cắt ngắn và đâm vào một cột góc 32 cm, nên không có mặt nào chồng lên nhau ở góc; dải trang trí của mọi module chạy hết chiều rộng ô để hai module kề nhau khít mép. Trụ ốp ở hai mép module chỉ chạy từ mép trên dải chân tường tới mép dưới dải đèn, vì trụ cao hết tường có mặt trên trùng phẳng với dải băng trần và nhấp nháy khi nhìn từ trên xuống.
