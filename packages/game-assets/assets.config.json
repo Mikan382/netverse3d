@@ -547,6 +547,23 @@
         "spill": "showcase-tim-neon-spill.jpg"
       },
       "kits": ["station-parts.glb", "room-kit.glb"]
+    },
+    {
+      "id": "showcase-hem-mau",
+      "source": "showcase-hem-mau.blend",
+      "generator": "pipeline/make_showcase.py",
+      "file": "showcase-hem-mau.glb",
+      "block": "hem-mau",
+      "recipe": "tim-neon",
+      "images": {
+        "base": "showcase-street-base",
+        "spill": "showcase-street-spill"
+      },
+      "files": {
+        "base": "showcase-hem-mau-base.jpg",
+        "spill": "showcase-hem-mau-spill.jpg"
+      },
+      "kits": ["street-parts.glb", "sign-parts.glb"]
     }
   ],
   "environments": {
