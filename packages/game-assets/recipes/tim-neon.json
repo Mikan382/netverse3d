@@ -68,6 +68,11 @@
     "rooftop": "a",
     "festoon": "a",
     "lantern": "a",
+    "signal": "a",
+    "walk": "a",
+    "roadsign": "a",
+    "streetlight": "a",
+    "camera": "a",
     "motorbike": "a",
     "car": "a"
   },

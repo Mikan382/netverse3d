@@ -529,6 +529,44 @@
           "anchors": ["collision_main"]
         }
       }
+    },
+    {
+      "file": "traffic-parts.glb",
+      "source": "parts-traffic.blend",
+      "generator": "pipeline/make_traffic_kit.py",
+      "lightmap": true,
+      "slots": {
+        "signal": {
+          "variants": ["a"],
+          "maxTriangles": 1500,
+          "size": [3.5, 5.8, 0.7],
+          "anchors": ["collision_main"]
+        },
+        "walk": {
+          "variants": ["a"],
+          "maxTriangles": 1000,
+          "size": [0.45, 2.7, 0.6],
+          "anchors": ["collision_main"]
+        },
+        "roadsign": {
+          "variants": ["a", "b", "c"],
+          "maxTriangles": 800,
+          "size": [0.85, 2.7, 0.35],
+          "anchors": ["collision_main"]
+        },
+        "streetlight": {
+          "variants": ["a", "b"],
+          "maxTriangles": 1200,
+          "size": [4.6, 9.2, 2.8],
+          "anchors": ["collision_main"]
+        },
+        "camera": {
+          "variants": ["a"],
+          "maxTriangles": 1200,
+          "size": [1.2, 5.3, 0.7],
+          "anchors": ["collision_main"]
+        }
+      }
     }
   ],
   "scenes": [
