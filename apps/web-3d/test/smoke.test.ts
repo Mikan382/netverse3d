@@ -59,6 +59,7 @@ const TYPES: Record<string, string> = {
   '.mjs': 'text/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
+  '.png': 'image/png',
   '.glb': 'model/gltf-binary',
   '.txt': 'text/plain',
 };
@@ -66,6 +67,9 @@ const TYPES: Record<string, string> = {
 const chrome = CHROME_CANDIDATES.find((path) => existsSync(path));
 let server: Server | undefined;
 let origin = '';
+let workerRevision = 1;
+let apiRequests = 0;
+let disconnectHome = false;
 
 const sleep = (ms: number) => new Promise<void>((done) => setTimeout(done, ms));
 
@@ -80,6 +84,15 @@ function fileFor(pathname: string): string | null {
 
 before(async () => {
   server = createServer((request, response) => {
+    const pathname = request.url?.split('?')[0];
+    if (pathname === '/api/pwa-test') {
+      response.writeHead(200, { 'Cache-Control': 'no-store' }).end(String(++apiRequests));
+      return;
+    }
+    if (pathname === '/' && disconnectHome) {
+      response.destroy();
+      return;
+    }
     if (request.url?.startsWith('/api/identity/v1/')) {
       void serveIdentityFixture(request, response);
       return;
@@ -87,6 +100,12 @@ before(async () => {
     const file = fileFor(decodeURIComponent(request.url ?? '/'));
     if (!file) {
       response.writeHead(404).end();
+      return;
+    }
+    if (pathname === '/sw.js') {
+      response
+        .writeHead(200, { 'Content-Type': 'text/javascript', 'Cache-Control': 'no-cache' })
+        .end(`${readFileSync(file, 'utf8')}\n/* test revision ${workerRevision} */`);
       return;
     }
     response.writeHead(200, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream' });
@@ -160,6 +179,15 @@ class Devtools {
       awaitPromise: true,
     })) as { result: { value: T } };
     return reply.result.value;
+  }
+
+  async waitFor(expression: string) {
+    const deadline = Date.now() + 15000;
+    while (Date.now() < deadline) {
+      if (await this.evaluate<boolean>(`Boolean(${expression})`).catch(() => false)) return;
+      await sleep(100);
+    }
+    assert.fail(`Trình duyệt chưa ở trạng thái: ${expression}`);
   }
 }
 
@@ -333,14 +361,7 @@ test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại m�
     (state) =>
       realModels ? state.ready === 'true' && Number(state.frames) > 0 : Boolean(state.recipe),
     async (browser) => {
-      async function waitFor(expression: string) {
-        const deadline = Date.now() + 15000;
-        while (Date.now() < deadline) {
-          if (await browser.evaluate<boolean>(`Boolean(${expression})`).catch(() => false)) return;
-          await sleep(100);
-        }
-        assert.fail(`Trình duyệt chưa ở trạng thái: ${expression}`);
-      }
+      const waitFor = (expression: string) => browser.waitFor(expression);
       const dialog = `document.querySelector('dialog[open]')`;
       const title = `${dialog}?.querySelector('h1')?.textContent`;
       const accountButton = `document.querySelector('[aria-label="Tài khoản"] button:not([disabled])')`;
@@ -426,4 +447,68 @@ test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại m�
     'auth/login',
     'me',
   ]);
+});
+
+test('bản PWA cài được, cập nhật theo yêu cầu và báo mất kết nối', async (context) => {
+  if (!browserReady(context, false)) return;
+  await renderPage(
+    '/',
+    (state) => Boolean(state.recipe),
+    async (browser) => {
+      await browser.waitFor('navigator.serviceWorker.controller?.state === "activated"');
+      const installability = (await browser.send('Page.getInstallabilityErrors')) as {
+        installabilityErrors: unknown[];
+      };
+      assert.deepEqual(installability.installabilityErrors, []);
+
+      const manifestUrl = await browser.evaluate<string>(
+        `document.querySelector('link[rel="manifest"]').href`,
+      );
+      const manifestResponse = await fetch(manifestUrl);
+      assert.equal(manifestResponse.headers.get('Content-Type'), 'application/json');
+      const manifest = await manifestResponse.json();
+      assert.equal(manifest.start_url, '/');
+      assert.equal(manifest.display, 'standalone');
+      assert.ok(
+        await browser.evaluate(
+          `document.querySelector('link[rel="apple-touch-icon"]').href.endsWith('/apple-touch-icon.png')`,
+        ),
+      );
+
+      const probe = `fetch('/api/pwa-test').then(response => response.text())`;
+      assert.equal(await browser.evaluate(probe), '1');
+      assert.equal(await browser.evaluate(probe), '2');
+      assert.deepEqual(await browser.evaluate('caches.keys()'), []);
+
+      await browser.evaluate('window.__pwaTestPage = true');
+      workerRevision += 1;
+      await browser.evaluate(
+        'navigator.serviceWorker.ready.then(registration => registration.update())',
+      );
+      const updateButton = `[...document.querySelectorAll('button')].find(button => button.textContent === 'Cập nhật ứng dụng')`;
+      await browser.waitFor(updateButton);
+      assert.equal(await browser.evaluate('window.__pwaTestPage'), true);
+      assert.equal(
+        await browser.evaluate(
+          'navigator.serviceWorker.ready.then(registration => registration.waiting?.state)',
+        ),
+        'installed',
+      );
+      await browser.evaluate(`${updateButton}.click()`);
+      await browser.waitFor(
+        `!window.__pwaTestPage && navigator.serviceWorker.controller?.state === 'activated' && document.querySelector('#stage')`,
+      );
+      await browser.waitFor(`!(${updateButton})`);
+
+      disconnectHome = true;
+      try {
+        await browser.send('Page.reload');
+        await browser.waitFor(`document.querySelector('h1')?.textContent === 'Mất kết nối'`);
+      } finally {
+        disconnectHome = false;
+      }
+      await browser.evaluate(`document.querySelector('main a').click()`);
+      await browser.waitFor(`document.querySelector('#stage')`);
+    },
+  );
 });
