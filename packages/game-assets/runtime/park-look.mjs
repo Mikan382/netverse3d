@@ -1,23 +1,5 @@
 export const PARK_TILE_SIZE = 4;
 
-export function parkRecipe(THREE, recipe) {
-  const tint = (base, colors) =>
-    colors.map(
-      (color) => `#${new THREE.Color(base).lerp(new THREE.Color(color), 0.12).getHexString()}`,
-    );
-  const emissive = { ...recipe.emissive };
-  delete emissive.trim;
-  return {
-    ...recipe,
-    palette: {
-      ...recipe.palette,
-      trim: tint('#306447', recipe.palette.trim),
-      strip: tint('#ffb45c', recipe.palette.strip),
-    },
-    emissive,
-  };
-}
-
 const PARK_PROPS = [
   ['park_gate_a', [0, 0.16, 7.7], 0],
   ['park_fountain_a', [2.1, 0.16, -2], 0],
@@ -28,7 +10,7 @@ const PARK_PROPS = [
   ['park_planting_b', [-3.8, 0.14, -6.5], 0],
   ['park_seat_a', [-4.3, 0.14, 3.85], 0],
   ['park_seat_a', [5.25, 0.14, -2.7], Math.PI / 2],
-  ['park_bin_a', [-5.55, 0.14, 3.85], 0],
+  ['bin_a', [-5.55, 0.14, 3.85], 0],
   ['park_lamp_a', [-3.85, 0.14, 6.0], 0],
   ['park_lamp_a', [4.3, 0.14, 5.6], 0],
   ['park_lamp_a', [-2.9, 0.14, -4.9], 0],

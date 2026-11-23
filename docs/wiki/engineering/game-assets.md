@@ -217,7 +217,7 @@ Theo tiêu chuẩn mỹ thuật một chuẩn render và năm vật liệu chung
 
 Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông dài 48 m (3 tấm `water_a` 16 m) với bờ kè hai bên (gồm cả bậc bến và bến thuyền) cùng cầu dây văng vắt ngang (đoạn dẫn nam, nhịp cầu, trụ tháp, đoạn dẫn bắc) và nhân vật `player` để đối chiếu tỷ lệ.
 
-`park-parts.glb` có ô 4 m cho cỏ, lối lát và bó viền, hai cỡ cây dùng hàng `trim` cho lá và `body` hoặc `soft` cho thân theo #224, bụi cây, bồn hoa, ghế đá, đèn thấp, thùng rác, cổng, đài phun và cầu trượt. Đài phun dùng hàng màu `body` như mặt nước của bộ sông, mặt nước tĩnh. `park-look.mjs` ghép nền từ 8 đến 16 m và đưa mẫu 16 m vào lab với nhân vật. Cổng có hai hộp va chạm riêng ở trụ để chừa lối đi giữa.
+`park-parts.glb` có ô 4 m cho cỏ, lối lát và bó viền, hai cỡ cây, bụi cây, bồn hoa, ghế, đèn thấp, cổng, đài phun và cầu trượt. Bảng màu chung dùng `grass` cho cỏ, `foliage` cho lá, `warm_lamp` cho đèn thấp và `cool_water` cho điểm sáng quanh đài phun. Các hàng thêm nằm xen giữa tâm UV cũ, nên bộ phố và các bộ khác giữ nguyên tọa độ màu. `hero_vegetation.py` dựng tán và thân dùng chung với cây phố của #224. Mặt nước tĩnh của đài phun dùng hàng `body` như bộ sông. Mẫu 16 m trong lab dùng lại `bin_a` từ bộ phố và có nhân vật để so tỉ lệ. Cổng giữ hai hộp va chạm riêng ở trụ để chừa lối đi giữa.
 
 `landmark-parts.glb` chứa hai tháp gợi hình của REQ-042. Vành Mây lấy cảm hứng từ dáng thuôn và sàn tròn nhô ngang. Nhịp Trời lấy cảm hứng từ nhóm thân cao thấp xếp bậc có chóp. Hình học, tên và chi tiết thuộc Netverse. Hai chân tháp gồm quảng trường, bậc và sảnh trước, với va chạm chặn thân đế. Thân lắp trên đế và có bản nhẹ từ 190 m. Phòng lab có bộ ghép tổng thể và hai bộ riêng để so chân tháp với nhân vật.
 

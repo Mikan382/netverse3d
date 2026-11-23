@@ -310,7 +310,7 @@
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
-      import { PARK_EXHIBIT, parkRecipe } from '../runtime/park-look.mjs';
+      import { PARK_EXHIBIT } from '../runtime/park-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import { kitLightmap, previewKitFiles, shopMaterials } from '../runtime/three-shop.mjs';
       import { legendTextures } from '../runtime/keyboard-legends.mjs';
@@ -724,19 +724,12 @@
         materialSets = Object.fromEntries(
           Object.entries(kits).map(([file, gltf]) => [
             file,
-            shopMaterials(
-              THREE,
-              file === 'park-parts.glb'
-                ? parkRecipe(THREE, recipes[state.recipeId])
-                : recipes[state.recipeId],
-              rows,
-              {
-                glowBoost: state.glow,
-                lightmap: kitLightmap(gltf.scene),
-                lightmapIntensity: state.ao ? 1 : 0,
-                legends,
-              },
-            ),
+            shopMaterials(THREE, recipes[state.recipeId], rows, {
+              glowBoost: state.glow,
+              lightmap: kitLightmap(gltf.scene),
+              lightmapIntensity: state.ao ? 1 : 0,
+              legends,
+            }),
           ]),
         );
         materials = Object.values(materialSets)[0];

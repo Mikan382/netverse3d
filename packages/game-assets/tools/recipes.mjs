@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { basename, join } from 'node:path';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import { COLORWAYS, LED_MODES } from '../runtime/keyboard-styles.mjs';
-import { doorwayCell } from '../runtime/shop-look.mjs';
+import { doorwayCell, paletteRows } from '../runtime/shop-look.mjs';
 
 const RECIPE_FOLDER = 'recipes';
 const INDEX_FILE = 'index.json';
@@ -30,12 +30,12 @@ function checkRecipeShape(recipe, label) {
 }
 
 function checkRecipePalette(recipe, palette, label) {
-  const rows = [...palette.surface, ...palette.glow];
+  const rows = paletteRows(palette).filter(Boolean);
   const keys = Object.keys(recipe.palette);
   const complete = keys.length === rows.length && rows.every((row) => keys.includes(row));
   const errors = complete ? [] : [`${label}: palette rows must be ${rows.join(', ')}`];
   for (const row of Object.keys(recipe.emissive ?? {})) {
-    if (!palette.surface.includes(row)) {
+    if (!palette.surface.includes(row) && !palette.extra?.surface?.includes(row)) {
       errors.push(`${label}: emissive row ${row} is not a surface row`);
     }
   }

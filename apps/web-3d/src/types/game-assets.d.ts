@@ -27,6 +27,7 @@ declare module '@netverse/game-assets/runtime/shop-look.mjs' {
     surface: string[];
     glow: string[];
     images?: string[];
+    extra?: { surface?: string[]; glow?: string[] };
   }
 
   export interface PaletteImage {

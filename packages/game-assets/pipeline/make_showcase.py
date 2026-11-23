@@ -5,7 +5,7 @@ import sys
 import bpy
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from hero_kit import LIGHTMAP_UV, PALETTE_UV, ROWS, finish_lightmap_uv, prepare_lightmap_uv, select_objects
+from hero_kit import LIGHTMAP_UV, PALETTE_ROWS, PALETTE_UV, finish_lightmap_uv, prepare_lightmap_uv, select_objects
 
 CLI_ARGS = sys.argv[sys.argv.index('--') + 1:]
 PLAN = CLI_ARGS[0]
@@ -24,8 +24,8 @@ MARGIN = 8
 
 
 def row_of(v):
-    index = round((1.0 - v) * len(ROWS) - 0.5)
-    return ROWS[max(0, min(len(ROWS) - 1, index))]
+    index = round((1.0 - v) * len(PALETTE_ROWS) - 0.5)
+    return PALETTE_ROWS[max(0, min(len(PALETTE_ROWS) - 1, index))]
 
 
 def append_templates(path, names):
