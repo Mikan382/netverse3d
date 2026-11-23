@@ -19,7 +19,7 @@ export const VACANT_PLOT_EXHIBIT = [
 
 export function vacancyNoticeMaterial(
   THREE,
-  createCanvas = () => document.createElement('canvas'),
+  createCanvas = () => globalThis.document.createElement('canvas'),
 ) {
   const canvas = createCanvas();
   canvas.width = 512;
