@@ -23,6 +23,9 @@
   "variants": {
     "tree": "b",
     "pit": "a",
+    "plot": "a",
+    "fence": "a",
+    "notice": "a",
     "desk": "b",
     "monitor": "b",
     "keyboard": "b",

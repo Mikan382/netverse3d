@@ -799,6 +799,25 @@
           "maxTriangles": 300,
           "size": [1.001, 0.151, 1.001],
           "grid": { "size": 1, "axes": [0, 2] }
+        },
+        "plot": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [4.001, 0.151, 4.001],
+          "grid": { "size": 4, "axes": [0, 2] }
+        },
+        "fence": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [4.001, 2.04, 0.23],
+          "grid": { "size": 4, "axes": [0] },
+          "anchors": ["collision_main"]
+        },
+        "notice": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [1.82, 2.05, 0.27],
+          "anchors": ["collision_main"]
         }
       }
     }
