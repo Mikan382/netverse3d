@@ -4,6 +4,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { vacancyNoticeMaterial } from '../../runtime/alley-look.mjs';
 import { legendTextures } from '../../runtime/keyboard-legends.mjs';
 import { COLORWAYS, LED_MODES, keyboardOptions } from '../../runtime/keyboard-styles.mjs';
+import { applyLandmarkGlow, kitGlowBoost } from '../../runtime/landmark-look.mjs';
 import { paletteRows } from '../../runtime/shop-look.mjs';
 import { kitLightmap, previewKitFiles, shopMaterials } from '../../runtime/three-shop.mjs';
 import { catalogSection, pageHref, sectionKits } from './catalog.mjs';
@@ -215,13 +216,14 @@ async function main() {
       Object.entries(kits).map(([file, gltf]) => [
         file,
         shopMaterials(THREE, recipe, rows, {
-          glowBoost: 1.1,
+          glowBoost: kitGlowBoost(file),
           lightmap: kitLightmap(gltf.scene),
           lightmapIntensity: state.occlusion ? 1 : 0,
           legends,
         }),
       ]),
     );
+    applyLandmarkGlow(materialSets['landmark-parts.glb']?.glow, rows);
     const chosen = recipes[state.recipeId].variants;
     for (const card of cards) {
       const set = materialSets[card.kit];

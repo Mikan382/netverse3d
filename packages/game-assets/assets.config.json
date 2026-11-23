@@ -750,7 +750,7 @@
       "slots": {
         "crescent_shaft": {
           "variants": ["a"],
-          "maxTriangles": 4700,
+          "maxTriangles": 12200,
           "size": [48, 175, 38],
           "lod": {
             "suffix": "low",
