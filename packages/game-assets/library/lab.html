@@ -313,6 +313,11 @@
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
       import { PARK_EXHIBIT } from '../runtime/park-look.mjs';
+      import {
+        LANDMARK_VIEWS,
+        applyLandmarkGlow,
+        kitGlowBoost,
+      } from '../runtime/landmark-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import { kitLightmap, previewKitFiles, shopMaterials } from '../runtime/three-shop.mjs';
       import { legendTextures } from '../runtime/keyboard-legends.mjs';
@@ -508,11 +513,21 @@
         ],
         'Chân tháp Vành Mây': [
           ['crescent_podium_a', [0, 0, 0], 0],
+          ['crescent_shaft_a', [0, 4.45, 0], 0],
           ['player', [2, 0.36, 17.5], Math.PI],
+        ],
+        'Vành Mây tầm trung': [
+          ['crescent_podium_a', [0, 0, 0], 0],
+          ['crescent_shaft_a', [0, 4.45, 0], 0],
         ],
         'Chân tháp Nhịp Trời': [
           ['bundled_podium_a', [0, 0, 0], 0],
+          ['bundled_shaft_a', [0, 4.45, 0], 0],
           ['player', [2, 0.36, 20.5], Math.PI],
+        ],
+        'Nhịp Trời tầm trung': [
+          ['bundled_podium_a', [0, 0, 0], 0],
+          ['bundled_shaft_a', [0, 4.45, 0], 0],
         ],
       };
 
@@ -738,13 +753,14 @@
           Object.entries(kits).map(([file, gltf]) => [
             file,
             shopMaterials(THREE, recipes[state.recipeId], rows, {
-              glowBoost: state.glow,
+              glowBoost: kitGlowBoost(file, state.glow),
               lightmap: kitLightmap(gltf.scene),
               lightmapIntensity: state.ao ? 1 : 0,
               legends,
             }),
           ]),
         );
+        applyLandmarkGlow(materialSets['landmark-parts.glb']?.glow, rows);
         materials = Object.values(materialSets)[0];
         display = materials.display;
         decal = materials.decal;
@@ -926,8 +942,17 @@
           low: [0.9, 0.25, -1],
         }[view] ?? [0.8, 0.6, -1];
         const offset = new THREE.Vector3(...dir).normalize().multiplyScalar(radius * 1.9);
-        controls.target.copy(centre);
-        camera.position.copy(centre).add(offset);
+        const shot =
+          view === 'iso' && !focus && !query.has('zoom')
+            ? LANDMARK_VIEWS[state.selection.name]
+            : null;
+        if (shot) {
+          controls.target.fromArray(shot.target);
+          camera.position.fromArray(shot.position);
+        } else {
+          controls.target.copy(centre);
+          camera.position.copy(centre).add(offset);
+        }
         camera.near = Math.max(0.05, radius * 0.005);
         camera.far = Math.max(60, radius * 8);
         camera.updateProjectionMatrix();
@@ -1008,7 +1033,8 @@
         exposure: (v) => (renderer.toneMappingExposure = v),
         glow: (v) => {
           state.glow = v;
-          for (const set of Object.values(materialSets)) set.glow.color.setScalar(v);
+          for (const [file, set] of Object.entries(materialSets))
+            set.glow.color.setScalar(kitGlowBoost(file, v));
         },
         bloomStrength: (v) => (bloom.strength = v),
         bloomThreshold: (v) => (bloom.threshold = v),
