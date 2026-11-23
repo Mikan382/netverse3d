@@ -48,6 +48,9 @@
     "slots": {
       "tree": "Cây đường phố",
       "pit": "Bồn gốc cây",
+      "plot": "Nền lô trống",
+      "fence": "Hàng rào lô đất",
+      "notice": "Bảng cho thuê",
       "water": "Mặt nước",
       "quay": "Bờ kè sông",
       "quaystep": "Bậc bến sông",

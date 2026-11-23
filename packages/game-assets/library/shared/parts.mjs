@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { vacancyNoticeMaterial } from '../../runtime/alley-look.mjs';
 import { legendTextures } from '../../runtime/keyboard-legends.mjs';
 import { COLORWAYS, LED_MODES, keyboardOptions } from '../../runtime/keyboard-styles.mjs';
 import { applyLandmarkGlow, kitGlowBoost } from '../../runtime/landmark-look.mjs';
@@ -200,6 +201,7 @@ async function main() {
   }
 
   let materialSets = {};
+  const vacantNotice = kits['alley-parts.glb'] ? vacancyNoticeMaterial(THREE) : null;
   function paint() {
     for (const set of Object.values(materialSets)) {
       for (const material of Object.values(set)) {
@@ -226,7 +228,10 @@ async function main() {
     for (const card of cards) {
       const set = materialSets[card.kit];
       card.group.traverse((mesh) => {
-        if (mesh.isMesh) mesh.material = set[mesh.userData.row] ?? set.surface;
+        if (!mesh.isMesh) return;
+        const row = mesh.userData.row;
+        mesh.material =
+          row === 'decal' && card.slot === 'notice' ? vacantNotice : (set[row] ?? set.surface);
       });
       card.node.dataset.chosen = String(chosen[card.slot] === card.variant);
     }
