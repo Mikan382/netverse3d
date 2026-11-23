@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ALLEY_LAMP_LIGHT_OFFSET } from '../runtime/alley-showcase.mjs';
 import { kitAnchors, roomPlan, shopPlan } from '../runtime/shop-look.mjs';
 import { streetPlan } from '../runtime/street-look.mjs';
 import { readGlb } from '../tools/lib.mjs';
@@ -53,12 +54,17 @@ export function buildStreetShowcasePlan(root, blockId = 'hem-mau', recipeId = 't
     { slot: 'blade', part: 'blade_a', position: [2.1, 3.2, 2.3], yaw: -Math.PI / 2 },
   ];
   const placements = [...basePlacements, ...signs];
+  const [, lampHeight, lampReach] = ALLEY_LAMP_LIGHT_OFFSET;
   const lamps = placements
     .filter((p) => p.part.startsWith('lamp_'))
     .map((p, i) => ({
       name: `lamp_light_${i}`,
       type: 'POINT',
-      position: [p.position[0], p.position[1] + 3.8, p.position[2]],
+      position: [
+        p.position[0] + lampReach * Math.sin(p.yaw),
+        p.position[1] + lampHeight,
+        p.position[2] + lampReach * Math.cos(p.yaw),
+      ],
       color: [1.0, 0.78, 0.45],
       energy: 400.0,
       radius: 0.3,

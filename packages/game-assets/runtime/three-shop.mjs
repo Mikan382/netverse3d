@@ -150,17 +150,18 @@ const SHOWCASE_VERTEX = `
 attribute vec2 uv1;
 varying vec2 vPalette;
 varying vec2 vLightmap;
-varying vec3 vViewPosition;
+varying vec3 vWorldPosition;
 varying vec3 vWorldNormal;
 void main() {
   vPalette = uv;
   vLightmap = uv1;
   #include <begin_vertex>
   #include <project_vertex>
-  vViewPosition = -mvPosition.xyz;
+  vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
   vWorldNormal = normalize(mat3(modelMatrix) * normal);
 }`;
 
+const SHOWCASE_REFLECTION_LIMIT = 6;
 const SHOWCASE_FRAGMENT = `
 uniform sampler2D palette;
 uniform sampler2D base;
@@ -172,10 +173,43 @@ uniform vec3 accentColor;
 uniform vec3 spillStrength;
 uniform float wetness;
 uniform float roughness;
+uniform float rainTime;
+uniform vec4 reflectionSources[${SHOWCASE_REFLECTION_LIMIT}];
 varying vec2 vPalette;
 varying vec2 vLightmap;
-varying vec3 vViewPosition;
+varying vec3 vWorldPosition;
 varying vec3 vWorldNormal;
+float hash(vec2 point) {
+  return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
+}
+float noise(vec2 point) {
+  vec2 cell = floor(point);
+  vec2 local = fract(point);
+  vec2 blend = local * local * (3.0 - 2.0 * local);
+  return mix(
+    mix(hash(cell), hash(cell + vec2(1.0, 0.0)), blend.x),
+    mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0)), blend.x), blend.y);
+}
+float ripple(vec2 point) {
+  vec2 cell = floor(point);
+  vec2 offset = vec2(hash(cell), hash(cell + 17.0)) * 0.4 + 0.3;
+  float age = fract(rainTime * 1.35 + hash(cell + 2.0));
+  float radius = length(fract(point) - offset);
+  return (1.0 - smoothstep(0.015, 0.05, abs(radius - age * 0.28))) * (1.0 - age);
+}
+vec3 streak(vec4 source, vec2 point, float rings) {
+  if (source.y <= 0.0) return vec3(0.0);
+  vec2 toCamera = cameraPosition.xz - source.xz;
+  vec2 direction = toCamera / max(length(toCamera), 0.001);
+  vec2 centre = source.xz + toCamera * source.y / max(cameraPosition.y + source.y, 0.1);
+  vec2 relative = point - centre;
+  float along = dot(relative, direction);
+  float lateral = dot(relative, vec2(-direction.y, direction.x)) + (rings - 0.1) * 0.18;
+  float width = mix(0.16, 0.45, roughness);
+  float falloff = exp(-lateral * lateral / (width * width) - along * along / 4.0);
+  vec3 tint = source.w > 0.5 ? vec3(1.0, 0.64, 0.29) : mix(accentColor, stripColor, 0.55);
+  return tint * falloff * (source.w > 0.5 ? 0.9 : 0.7);
+}
 void main() {
   vec3 albedo = texture2D(palette, vPalette).rgb;
   vec3 masks = texture2D(spill, vLightmap).rgb;
@@ -185,12 +219,19 @@ void main() {
     + masks.b * accentColor * spillStrength.z;
   vec3 color = albedo * light;
   if (wetness > 0.0) {
-    float gloss = clamp((1.0 - roughness) * wetness, 0.0, 1.0);
-    vec3 neonReflection = (masks.r * stripColor + masks.b * accentColor) * gloss * 1.6;
-    vec3 viewDir = normalize(vViewPosition);
-    float fresnel = pow(1.0 - max(dot(viewDir, vWorldNormal), 0.0), 3.0) * gloss * 0.45;
-    vec3 skyReflection = vec3(0.08, 0.06, 0.16) * fresnel;
-    color += neonReflection + skyReflection;
+    vec2 point = vWorldPosition.xz;
+    float puddle = smoothstep(0.42, 0.65,
+      noise(point * vec2(0.55, 1.1)) * 0.78 + noise(point * 3.1) * 0.22);
+    float horizontal = smoothstep(0.72, 0.98, normalize(vWorldNormal).y);
+    float gloss = (1.0 - roughness) * wetness * puddle * horizontal;
+    float rings = ripple(point * 2.8);
+    float grazing = 1.0 - max(dot(normalize(cameraPosition - vWorldPosition), vec3(0.0, 1.0, 0.0)), 0.0);
+    vec3 reflections = vec3(0.1, 0.11, 0.2) * grazing * grazing;
+    for (int index = 0; index < ${SHOWCASE_REFLECTION_LIMIT}; index++) {
+      reflections += streak(reflectionSources[index], point, rings);
+    }
+    color *= 1.0 - gloss * 0.32;
+    color += (reflections * (0.55 + 0.45 * grazing) + rings * vec3(0.12, 0.15, 0.22)) * gloss;
   }
   gl_FragColor = vec4(color, 1.0);
   #include <tonemapping_fragment>
@@ -244,6 +285,10 @@ export function showcaseMaterials(
       spillStrength: { value: new THREE.Vector3(...spillStrength) },
       wetness: { value: wetness },
       roughness: { value: roughness },
+      rainTime: { value: 0 },
+      reflectionSources: {
+        value: Array.from({ length: SHOWCASE_REFLECTION_LIMIT }, () => new THREE.Vector4()),
+      },
     },
     vertexShader: SHOWCASE_VERTEX,
     fragmentShader: SHOWCASE_FRAGMENT,
