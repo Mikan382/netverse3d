@@ -217,6 +217,8 @@ Theo tiêu chuẩn mỹ thuật một chuẩn render và năm vật liệu chung
 
 Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông dài 48 m (3 tấm `water_a` 16 m) với bờ kè hai bên (gồm cả bậc bến và bến thuyền) cùng cầu dây văng vắt ngang (đoạn dẫn nam, nhịp cầu, trụ tháp, đoạn dẫn bắc) và nhân vật `player` để đối chiếu tỷ lệ.
 
+`park-parts.glb` có ô 4 m cho cỏ, lối lát và bó viền, hai cỡ cây dùng hàng `trim` cho lá và `body` hoặc `soft` cho thân theo #224, bụi cây, bồn hoa, ghế đá, đèn thấp, thùng rác, cổng, đài phun và cầu trượt. Đài phun dùng hàng màu `body` như mặt nước của bộ sông, mặt nước tĩnh. `park-look.mjs` ghép nền từ 8 đến 16 m và đưa mẫu 16 m vào lab với nhân vật. Cổng có hai hộp va chạm riêng ở trụ để chừa lối đi giữa.
+
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời
 
 Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thế giới ngoài tiệm dùng chung một chuẩn ánh sáng, bầu trời và sương khai báo tập trung tại `packages/game-assets/runtime/street-look.mjs` thay vì tự đặt đèn riêng lẻ ở từng cảnh:
