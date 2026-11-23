@@ -42,9 +42,12 @@
       "furniture-parts.glb": "Tiện ích phố",
       "river-parts.glb": "Sông và cầu",
       "park-parts.glb": "Công viên và quảng trường",
-      "landmark-parts.glb": "Hai tháp điểm nhấn"
+      "landmark-parts.glb": "Hai tháp điểm nhấn",
+      "alley-parts.glb": "Đồ hẻm"
     },
     "slots": {
+      "tree": "Cây đường phố",
+      "pit": "Bồn gốc cây",
       "water": "Mặt nước",
       "quay": "Bờ kè sông",
       "quaystep": "Bậc bến sông",

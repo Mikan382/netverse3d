@@ -26,7 +26,7 @@ def foliage(part, center, radius, height, seed, segments=15):
             tag(part, [face], 'foliage', key, smooth=True)
 
 
-def build_woody_tree(part, height, spread, seed):
+def build_woody_tree(part, height, spread, seed, branch_start=0.29, branch_count=6):
     rng = Random(seed)
     trunk_radius = 0.16 * height / 5.2
     part.revolve((0, 0, 0), 'z', [
@@ -34,13 +34,13 @@ def build_woody_tree(part, height, spread, seed):
         (trunk_radius, height * 0.31, 'body'), (trunk_radius * 0.68, height * 0.63, 'body'),
         (trunk_radius * 0.28, height * 0.84, 'soft'),
     ], segments=17)
-    for index in range(6):
-        angle = (index + rng.uniform(-0.16, 0.16)) * pi / 3
+    for index in range(branch_count):
+        angle = (index + rng.uniform(-0.16, 0.16)) * 2 * pi / branch_count
         end = (spread * rng.uniform(0.74, 1) * cos(angle), spread * rng.uniform(0.73, 1) * sin(angle),
                height * rng.uniform(0.58, 0.73))
         x, y, z = end
         branch_radius = trunk_radius * 0.42
-        part.tube([(0, 0, height * (0.29 + index * 0.027)), (x * 0.56, y * 0.56, z - height * 0.11), end],
+        part.tube([(0, 0, height * (branch_start + index * 0.027)), (x * 0.56, y * 0.56, z - height * 0.11), end],
                   branch_radius, 'body', sides=9)
         part.tube([(x * 0.43, y * 0.43, z - height * 0.14), (x * 0.67 - y * 0.20, y * 0.66 + x * 0.21, z + height * 0.08)],
                   branch_radius * 0.53, 'soft', sides=7)

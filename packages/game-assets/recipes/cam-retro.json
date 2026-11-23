@@ -21,6 +21,8 @@
   },
   "keyboard": { "colorway": "retro", "led": "white" },
   "variants": {
+    "tree": "a",
+    "pit": "a",
     "desk": "c",
     "monitor": "c",
     "keyboard": "c",

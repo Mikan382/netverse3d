@@ -21,6 +21,8 @@
   },
   "keyboard": { "colorway": "graphite", "led": "single" },
   "variants": {
+    "tree": "b",
+    "pit": "a",
     "desk": "b",
     "monitor": "b",
     "keyboard": "b",
