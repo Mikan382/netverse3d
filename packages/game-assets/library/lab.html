@@ -313,6 +313,7 @@
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
       import { PARK_EXHIBIT } from '../runtime/park-look.mjs';
+      import { VACANT_PLOT_EXHIBIT, vacancyNoticeMaterial } from '../runtime/alley-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import { kitLightmap, previewKitFiles, shopMaterials } from '../runtime/three-shop.mjs';
       import { legendTextures } from '../runtime/keyboard-legends.mjs';
@@ -488,6 +489,7 @@
           ['player', [-6, 0.4, -4.5], 0],
         ],
         'Công viên 16 m': PARK_EXHIBIT,
+        'Lô đất trống': VACANT_PLOT_EXHIBIT,
         'Cây đường phố': [
           ['road_a', [0, 0, 2], 0],
           ['sidewalk_a', [0, 0, 0], 0],
@@ -642,6 +644,7 @@
       let display = null;
       let decal = null;
       const roadsignDecals = {};
+      const vacantNotice = vacancyNoticeMaterial(THREE);
 
       function roadsignDecalMaterial(name) {
         if (roadsignDecals[name]) return roadsignDecals[name];
@@ -769,6 +772,8 @@
             const matName = mesh.material.name;
             if (matName === 'decal' && name.startsWith('roadsign_')) {
               mesh.material = roadsignDecalMaterial(name);
+            } else if (matName === 'decal' && name === 'notice_a') {
+              mesh.material = vacantNotice;
             } else {
               mesh.material = set[matName] ?? set.surface;
             }
