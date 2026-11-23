@@ -217,6 +217,8 @@ Theo tiêu chuẩn mỹ thuật một chuẩn render và năm vật liệu chung
 
 Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông dài 48 m (3 tấm `water_a` 16 m) với bờ kè hai bên (gồm cả bậc bến và bến thuyền) cùng cầu dây văng vắt ngang (đoạn dẫn nam, nhịp cầu, trụ tháp, đoạn dẫn bắc) và nhân vật `player` để đối chiếu tỷ lệ.
 
+`landmark-parts.glb` chứa hai tháp gợi hình của REQ-042. Vành Mây lấy cảm hứng từ dáng thuôn và sàn tròn nhô ngang. Nhịp Trời lấy cảm hứng từ nhóm thân cao thấp xếp bậc có chóp. Hình học, tên và chi tiết thuộc Netverse. Hai chân tháp gồm quảng trường, bậc và sảnh trước, với va chạm chặn thân đế. Thân lắp trên đế và có bản nhẹ từ 190 m. Phòng lab có bộ ghép tổng thể và hai bộ riêng để so chân tháp với nhân vật.
+
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời
 
 Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thế giới ngoài tiệm dùng chung một chuẩn ánh sáng, bầu trời và sương khai báo tập trung tại `packages/game-assets/runtime/street-look.mjs` thay vì tự đặt đèn riêng lẻ ở từng cảnh:

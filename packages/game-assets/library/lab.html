@@ -196,6 +196,8 @@
         <div class="list" id="furnitureList"></div>
         <h2>Sông và cầu</h2>
         <div class="list" id="riverList"></div>
+        <h2>Tháp điểm nhấn</h2>
+        <div class="list" id="landmarkList"></div>
         <h2>Ghép thử mối nối</h2>
         <div class="list" id="setList"></div>
       </nav>
@@ -479,6 +481,21 @@
           ['ramp_a', [0, 0, 16], Math.PI / 2],
           ['player', [2.7, 1.35, 2.0], Math.PI / 2],
           ['player', [-6, 0.4, -4.5], 0],
+        ],
+        'Hai tháp điểm nhấn': [
+          ['crescent_podium_a', [-34, 0, 0], 0],
+          ['crescent_shaft_a', [-34, 4.45, 0], 0],
+          ['bundled_podium_a', [34, 0, 0], 0],
+          ['bundled_shaft_a', [34, 4.45, 0], 0],
+          ['player', [-34, 0.36, 18], Math.PI],
+        ],
+        'Chân tháp Vành Mây': [
+          ['crescent_podium_a', [0, 0, 0], 0],
+          ['player', [2, 0.36, 17.5], Math.PI],
+        ],
+        'Chân tháp Nhịp Trời': [
+          ['bundled_podium_a', [0, 0, 0], 0],
+          ['player', [2, 0.36, 20.5], Math.PI],
         ],
       };
 
@@ -842,7 +859,13 @@
         disposeGroup(stageGroup);
         stageGroup.rotation.y = 0;
         for (const [name, position, yaw] of placements()) {
-          const clone = partClone(name);
+          const model = partClone(name);
+          const lod = state.selection.kind === 'set' ? slotOf[name]?.spec.lod : null;
+          const clone = lod ? new THREE.LOD() : model;
+          if (lod) {
+            clone.addLevel(model, 0);
+            clone.addLevel(partClone(`${name}_${lod.suffix}`), lod.distance, 0.05);
+          }
           clone.position.set(...position);
           clone.rotation.y = yaw;
           stageGroup.add(clone);
@@ -910,6 +933,7 @@
         const traffic = $('trafficList');
         const furniture = $('furnitureList');
         const river = $('riverList');
+        const landmark = $('landmarkList');
         for (const [name, info] of Object.entries(slotOf)) {
           const button = document.createElement('button');
           button.textContent = name;
@@ -927,6 +951,7 @@
               'vehicle-parts.glb': street,
               'furniture-parts.glb': furniture,
               'river-parts.glb': river,
+              'landmark-parts.glb': landmark,
             }[info.kit] ?? lounge;
           list.append(button);
         }

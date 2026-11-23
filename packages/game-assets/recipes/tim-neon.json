@@ -90,7 +90,11 @@
     "pier": "a",
     "deck": "a",
     "pylon": "a",
-    "ramp": "a"
+    "ramp": "a",
+    "crescent_shaft": "a",
+    "crescent_podium": "a",
+    "bundled_shaft": "a",
+    "bundled_podium": "a"
   },
   "layout": {
     "cells": [4, 3],

@@ -40,7 +40,8 @@
       "traffic-parts.glb": "Giao thông",
       "vehicle-parts.glb": "Xe cộ",
       "furniture-parts.glb": "Tiện ích phố",
-      "river-parts.glb": "Sông và cầu"
+      "river-parts.glb": "Sông và cầu",
+      "landmark-parts.glb": "Hai tháp điểm nhấn"
     },
     "slots": {
       "water": "Mặt nước",
@@ -113,7 +114,11 @@
       "light": "Đèn trần",
       "marker": "Vạch sàn",
       "motorbike": "Xe máy",
-      "car": "Ô tô"
+      "car": "Ô tô",
+      "crescent_shaft": "Thân tháp Vành Mây",
+      "crescent_podium": "Chân tháp Vành Mây",
+      "bundled_shaft": "Thân tháp Nhịp Trời",
+      "bundled_podium": "Chân tháp Nhịp Trời"
     },
     "variantNames": {
       "cart_a": "Xe bánh mì",
