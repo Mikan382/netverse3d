@@ -17,6 +17,18 @@ export const VACANT_PLOT_EXHIBIT = [
   ['player', [-1.4, SIDEWALK_TOP, 4.47], 0],
 ];
 
+export const ALLEY_PROPS_EXHIBIT = [
+  ['road_a', [0, 0, 2], 0],
+  ['sidewalk_a', [0, 0, 0], 0],
+  ['shopfront_a', [0, 0, -0.65], 0],
+  ['crate_a', [-0.79, SIDEWALK_TOP, -0.12], 0],
+  ['gas_a', [0.1, SIDEWALK_TOP, 0.05], 0],
+  ['mirror_a', [1.29, SIDEWALK_TOP, 0.26], -Math.PI / 9],
+  ['hydrant_a', [-1.73, SIDEWALK_TOP, 0.13], 0],
+  ['bollard_a', [1.83, SIDEWALK_TOP, 0.34], 0],
+  ['player', [0.54, SIDEWALK_TOP, 1.05], 0],
+];
+
 export function vacancyNoticeMaterial(
   THREE,
   createCanvas = () => globalThis.document.createElement('canvas'),
