@@ -96,7 +96,11 @@
     "park_bin": "a",
     "park_gate": "a",
     "park_fountain": "a",
-    "park_play": "a"
+    "park_play": "a",
+    "crescent_shaft": "a",
+    "crescent_podium": "a",
+    "bundled_shaft": "a",
+    "bundled_podium": "a"
   },
   "layout": {
     "cells": [3, 4],
