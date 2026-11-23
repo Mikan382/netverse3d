@@ -34,7 +34,16 @@ const ANCHOR_SEPARATOR = '__';
 const PRECISION = 1e4;
 
 export function paletteRows(palette) {
-  return [...palette.surface, ...palette.glow];
+  const base = [...palette.surface, ...palette.glow];
+  const extra = [...(palette.extra?.surface ?? []), ...(palette.extra?.glow ?? [])];
+  if (extra.length === 0) return base;
+  if (
+    extra.length > base.length ||
+    new Set([...base, ...extra]).size !== base.length + extra.length
+  ) {
+    throw new RangeError('Palette extra rows must be unique and fit the existing layout');
+  }
+  return base.flatMap((row, index) => [extra[index] ?? '', row, '']);
 }
 
 export function hexToBytes(hex) {

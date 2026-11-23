@@ -48,15 +48,15 @@ def build_shopfront():
     for z in (sign_z + 0.01, sign_z + sign_height - 0.01):
         front.tube([(-sign_width / 2 - 0.06, face_y - 0.01, z), (sign_width / 2 + 0.06, face_y - 0.01, z)], 0.012, 'strip', sides=6)
     awning_z = sign_z + sign_height + 0.06
-    awning = [Vector((-1.9, FACE - 0.02, awning_z + 0.06)), Vector((1.9, FACE - 0.02, awning_z + 0.06)), Vector((1.9, FACE - 0.9, awning_z - 0.22)), Vector((-1.9, FACE - 0.9, awning_z - 0.22))]
+    awning = [Vector((-1.9, FACE - 0.02, awning_z + 0.06)), Vector((1.9, FACE - 0.02, awning_z + 0.06)), Vector((1.9, FACE - 0.45, awning_z - 0.22)), Vector((-1.9, FACE - 0.45, awning_z - 0.22))]
     under = [point + Vector((0, 0, -0.03)) for point in awning]
     front.loft([awning, under], lambda r, c: 'soft' if r == 0 else 'top', levels=0, closed=True, cap=True, smooth=False)
     for x in (-1.7, 1.7):
-        front.tube([(x, FACE - 0.01, awning_z - 0.5), (x, FACE - 0.78, awning_z - 0.2)], 0.018, 'metal', sides=4)
+        front.tube([(x, FACE - 0.01, awning_z - 0.5), (x, FACE - 0.38, awning_z - 0.2)], 0.018, 'metal', sides=4)
     return front
 
 
-def balcony(part, z, depth=1.0, rail_height=1.05):
+def balcony(part, z, depth=0.45, rail_height=1.05):
     part.rounded_box((0, FACE - depth / 2, z + 0.06), (WIDTH - 0.08, depth, 0.12), 'top', radius=0.01, segments=1)
     rail_y = FACE - depth + 0.05
     bars = 16

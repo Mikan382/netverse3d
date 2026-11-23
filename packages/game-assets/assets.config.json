@@ -122,7 +122,8 @@
   "palette": {
     "surface": ["body", "metal", "soft", "top", "floor", "wall", "ceiling", "trim"],
     "glow": ["strip", "keycap", "screen", "accent"],
-    "images": ["display", "decal", "legend"]
+    "images": ["display", "decal", "legend"],
+    "extra": { "surface": ["grass", "foliage"], "glow": ["warm_lamp", "cool_water"] }
   },
   "kits": [
     {
@@ -690,7 +691,7 @@
       "slots": {
         "park_tile": {
           "variants": ["a", "b", "c"],
-          "maxTriangles": 380,
+          "maxTriangles": 1150,
           "size": [4.01, 0.25, 4.01],
           "grid": {
             "size": 4,
@@ -699,49 +700,43 @@
         },
         "park_tree": {
           "variants": ["a", "b"],
-          "maxTriangles": 850,
+          "maxTriangles": 2500,
           "size": [4.5, 5.5, 4.5],
           "anchors": ["collision_main"]
         },
         "park_planting": {
           "variants": ["a", "b"],
-          "maxTriangles": 800,
+          "maxTriangles": 2300,
           "size": [2.1, 0.8, 0.9],
           "anchors": ["collision_main"]
         },
         "park_seat": {
           "variants": ["a"],
-          "maxTriangles": 300,
+          "maxTriangles": 1700,
           "size": [2, 0.85, 0.7],
           "anchors": ["collision_main"]
         },
         "park_lamp": {
           "variants": ["a"],
-          "maxTriangles": 250,
+          "maxTriangles": 1050,
           "size": [0.4, 1.6, 0.4],
-          "anchors": ["collision_main"]
-        },
-        "park_bin": {
-          "variants": ["a"],
-          "maxTriangles": 300,
-          "size": [0.5, 1, 0.5],
           "anchors": ["collision_main"]
         },
         "park_gate": {
           "variants": ["a"],
-          "maxTriangles": 300,
+          "maxTriangles": 1400,
           "size": [3.8, 3.1, 0.65],
           "anchors": ["collision_main", "collision_right"]
         },
         "park_fountain": {
           "variants": ["a"],
-          "maxTriangles": 850,
+          "maxTriangles": 2550,
           "size": [3.6, 1, 3.6],
           "anchors": ["collision_main"]
         },
         "park_play": {
           "variants": ["a"],
-          "maxTriangles": 950,
+          "maxTriangles": 2600,
           "size": [1.85, 2.2, 3.8],
           "anchors": ["collision_main"]
         }
@@ -755,7 +750,7 @@
       "slots": {
         "crescent_shaft": {
           "variants": ["a"],
-          "maxTriangles": 4700,
+          "maxTriangles": 12200,
           "size": [48, 175, 38],
           "lod": {
             "suffix": "low",
@@ -783,6 +778,63 @@
           "variants": ["a"],
           "maxTriangles": 850,
           "size": [60.1, 4.6, 50.1],
+          "anchors": ["collision_main"]
+        }
+      }
+    },
+    {
+      "file": "alley-parts.glb",
+      "source": "parts-alley.blend",
+      "generator": "pipeline/make_alley_kit.py",
+      "lightmap": true,
+      "slots": {
+        "tree": {
+          "variants": ["a", "b"],
+          "maxTriangles": 3000,
+          "size": [3.9, 6.6, 3.9],
+          "anchors": ["collision_main"]
+        },
+        "pit": {
+          "variants": ["a"],
+          "maxTriangles": 300,
+          "size": [1.001, 0.151, 1.001],
+          "grid": { "size": 1, "axes": [0, 2] }
+        },
+        "plot": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [4.001, 0.151, 4.001],
+          "grid": { "size": 4, "axes": [0, 2] }
+        },
+        "fence": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [4.001, 2.04, 0.23],
+          "grid": { "size": 4, "axes": [0] },
+          "anchors": ["collision_main"]
+        },
+        "notice": {
+          "variants": ["a"],
+          "maxTriangles": 500,
+          "size": [1.82, 2.05, 0.27],
+          "anchors": ["collision_main"]
+        },
+        "crate": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.53, 0.91, 0.4],
+          "anchors": ["collision_main"]
+        },
+        "gas": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.36, 0.73, 0.36],
+          "anchors": ["collision_main"]
+        },
+        "mirror": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.67, 2.64, 0.4],
           "anchors": ["collision_main"]
         }
       }

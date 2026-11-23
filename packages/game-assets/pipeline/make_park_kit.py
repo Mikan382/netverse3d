@@ -15,10 +15,9 @@ COLLISIONS = {
     'park_planting_b': (('collision_main', (0, 0, 0.3), (0.94, 0.4, 0.3)),),
     'park_seat_a': (('collision_main', (0, 0, 0.38), (0.96, 0.29, 0.38)),),
     'park_lamp_a': (('collision_main', (0, 0, 0.6), (0.19, 0.19, 0.6)),),
-    'park_bin_a': (('collision_main', (0, 0, 0.45), (0.22, 0.22, 0.45)),),
     'park_gate_a': (
-        ('collision_main', (-1.65, 0, 1.25), (0.17, 0.22, 1.25)),
-        ('collision_right', (1.65, 0, 1.25), (0.17, 0.22, 1.25)),
+        ('collision_main', (-1.64, 0, 1.25), (0.22, 0.26, 1.25)),
+        ('collision_right', (1.64, 0, 1.25), (0.22, 0.26, 1.25)),
     ),
     'park_fountain_a': (('collision_main', (0, 0, 0.44), (1.78, 1.78, 0.44)),),
     'park_play_a': (('collision_main', (0, -0.46, 1), (0.85, 1.8, 1)),),

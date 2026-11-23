@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkCoplanar, facadeAssemblies, roomAssemblies } from './coplanar.mjs';
+import { paletteRows } from '../runtime/shop-look.mjs';
 import { PREVIEW_SUFFIX } from '../runtime/three-shop.mjs';
 
 const GLB_MAGIC = 0x46546c67;
@@ -294,10 +295,10 @@ function readUvPairs(gltf, bin, accessorIndex) {
   ]);
 }
 
-function isOnPaletteRow([u, v], rowCount, [firstRow, endRow]) {
-  const row = Math.floor(v * rowCount);
-  const onCentre = Math.abs(v - (row + 0.5) / rowCount) <= PALETTE_ROW_TOLERANCE;
-  return u >= 0 && u <= 1 && onCentre && row >= firstRow && row < endRow;
+function isOnPaletteRow([u, v], rows, allowed) {
+  const row = Math.floor(v * rows.length);
+  const onCentre = Math.abs(v - (row + 0.5) / rows.length) <= PALETTE_ROW_TOLERANCE;
+  return u >= 0 && u <= 1 && onCentre && allowed.has(rows[row]);
 }
 
 function checkImagePrimitive(gltf, bin, node, primitive, fail) {
@@ -312,9 +313,11 @@ function checkImagePrimitive(gltf, bin, node, primitive, fail) {
 }
 
 function checkPalette(gltf, bin, nodes, palette, fail) {
-  const surfaceRows = palette.surface.length;
-  const rowCount = surfaceRows + palette.glow.length;
-  const rowsOf = { surface: [0, surfaceRows], glow: [surfaceRows, rowCount] };
+  const rows = paletteRows(palette);
+  const rowsOf = {
+    surface: new Set([...palette.surface, ...(palette.extra?.surface ?? [])]),
+    glow: new Set([...palette.glow, ...(palette.extra?.glow ?? [])]),
+  };
   const images = new Set(palette.images ?? []);
   for (const node of nodes) {
     for (const primitive of gltf.meshes[node.mesh].primitives) {
@@ -329,7 +332,7 @@ function checkPalette(gltf, bin, nodes, palette, fail) {
         fail(`${node.name} has no palette UV`);
       } else if (
         !readUvPairs(gltf, bin, primitive.attributes.TEXCOORD_0).every((pair) =>
-          isOnPaletteRow(pair, rowCount, rowsOf[material]),
+          isOnPaletteRow(pair, rows, rowsOf[material]),
         )
       ) {
         fail(`${node.name} has a palette UV outside ${material} rows`);

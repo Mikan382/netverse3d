@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { vacancyNoticeMaterial } from '../../runtime/alley-look.mjs';
 import { legendTextures } from '../../runtime/keyboard-legends.mjs';
 import { COLORWAYS, LED_MODES, keyboardOptions } from '../../runtime/keyboard-styles.mjs';
+import { applyLandmarkGlow, kitGlowBoost } from '../../runtime/landmark-look.mjs';
 import { paletteRows } from '../../runtime/shop-look.mjs';
 import { kitLightmap, previewKitFiles, shopMaterials } from '../../runtime/three-shop.mjs';
 import { catalogSection, pageHref, sectionKits } from './catalog.mjs';
@@ -199,6 +201,7 @@ async function main() {
   }
 
   let materialSets = {};
+  const vacantNotice = kits['alley-parts.glb'] ? vacancyNoticeMaterial(THREE) : null;
   function paint() {
     for (const set of Object.values(materialSets)) {
       for (const material of Object.values(set)) {
@@ -213,18 +216,22 @@ async function main() {
       Object.entries(kits).map(([file, gltf]) => [
         file,
         shopMaterials(THREE, recipe, rows, {
-          glowBoost: 1.1,
+          glowBoost: kitGlowBoost(file),
           lightmap: kitLightmap(gltf.scene),
           lightmapIntensity: state.occlusion ? 1 : 0,
           legends,
         }),
       ]),
     );
+    applyLandmarkGlow(materialSets['landmark-parts.glb']?.glow, rows);
     const chosen = recipes[state.recipeId].variants;
     for (const card of cards) {
       const set = materialSets[card.kit];
       card.group.traverse((mesh) => {
-        if (mesh.isMesh) mesh.material = set[mesh.userData.row] ?? set.surface;
+        if (!mesh.isMesh) return;
+        const row = mesh.userData.row;
+        mesh.material =
+          row === 'decal' && card.slot === 'notice' ? vacantNotice : (set[row] ?? set.surface);
       });
       card.node.dataset.chosen = String(chosen[card.slot] === card.variant);
     }

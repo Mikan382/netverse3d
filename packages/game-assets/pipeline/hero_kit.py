@@ -1,15 +1,23 @@
+import json
 import math
 import os
+from pathlib import Path
 
 import bmesh
 import bpy
 from mathutils import Vector
 
-SURFACE_ROWS = ['body', 'metal', 'soft', 'top', 'floor', 'wall', 'ceiling', 'trim']
-GLOW_ROWS = ['strip', 'keycap', 'screen', 'accent']
-IMAGE_ROWS = ['display', 'decal', 'legend']
-ROWS = SURFACE_ROWS + GLOW_ROWS
-ALL_ROWS = ROWS + IMAGE_ROWS
+PALETTE = json.loads((Path(__file__).resolve().parent.parent / 'assets.config.json').read_text(encoding='utf-8'))['palette']
+EXTRA_SURFACE_ROWS = PALETTE.get('extra', {}).get('surface', [])
+EXTRA_GLOW_ROWS = PALETTE.get('extra', {}).get('glow', [])
+SURFACE_ROWS = PALETTE['surface'] + EXTRA_SURFACE_ROWS
+GLOW_ROWS = PALETTE['glow'] + EXTRA_GLOW_ROWS
+IMAGE_ROWS = PALETTE['images']
+ROWS = PALETTE['surface'] + PALETTE['glow']
+EXTRA_ROWS = EXTRA_SURFACE_ROWS + EXTRA_GLOW_ROWS
+PALETTE_ROWS = [item for index, row in enumerate(ROWS)
+                for item in (EXTRA_ROWS[index] if index < len(EXTRA_ROWS) else None, row, None)] if EXTRA_ROWS else ROWS
+ALL_ROWS = ROWS + EXTRA_ROWS + IMAGE_ROWS
 CUT_SLOT = len(ALL_ROWS)
 MATERIAL_ORDER = ['surface', 'glow', 'display', 'decal', 'legend']
 
@@ -382,7 +390,7 @@ def finish_hero(part, collection, materials):
                         (loop.vert.co[v_axis] - lows[v_axis]) / max(spans[v_axis], 1e-6),
                     )
             continue
-        v_coord = 1 - (ROWS.index(name) + 0.5) / len(ROWS)
+        v_coord = 1 - (PALETTE_ROWS.index(name) + 0.5) / len(PALETTE_ROWS)
         for face in faces:
             face.material_index = 1 if name in GLOW_ROWS else 0
             for loop in face.loops:

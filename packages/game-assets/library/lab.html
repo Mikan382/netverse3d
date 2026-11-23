@@ -198,6 +198,8 @@
         <div class="list" id="riverList"></div>
         <h2>Công viên</h2>
         <div class="list" id="parkList"></div>
+        <h2>Đồ hẻm</h2>
+        <div class="list" id="alleyList"></div>
         <h2>Tháp điểm nhấn</h2>
         <div class="list" id="landmarkList"></div>
         <h2>Nhà tầm trung</h2>
@@ -312,7 +314,17 @@
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
-      import { PARK_EXHIBIT, parkRecipe } from '../runtime/park-look.mjs';
+      import {
+        LANDMARK_VIEWS,
+        applyLandmarkGlow,
+        kitGlowBoost,
+      } from '../runtime/landmark-look.mjs';
+      import { PARK_EXHIBIT } from '../runtime/park-look.mjs';
+      import {
+        ALLEY_PROPS_EXHIBIT,
+        VACANT_PLOT_EXHIBIT,
+        vacancyNoticeMaterial,
+      } from '../runtime/alley-look.mjs';
       import { MIDRISE_RECIPES, midrisePlan } from '../runtime/midrise-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import {
@@ -494,6 +506,19 @@
           ['player', [-6, 0.4, -4.5], 0],
         ],
         'Công viên 16 m': PARK_EXHIBIT,
+        'Lô đất trống': VACANT_PLOT_EXHIBIT,
+        'Đồ lặt vặt trong hẻm': ALLEY_PROPS_EXHIBIT,
+        'Cây đường phố': [
+          ['road_a', [0, 0, 2], 0],
+          ['sidewalk_a', [0, 0, 0], 0],
+          ['sidewalk_a', [4, 0, 0], 0],
+          ['pit_a', [-1, 0.003, 0], 0],
+          ['tree_a', [-1, 0.15, 0], 0],
+          ['pit_a', [4.6, 0.003, 0], 0],
+          ['tree_b', [4.6, 0.15, 0], 0],
+          ['pole_a', [1.65, 0.15, 0.35], 0],
+          ['player', [0.5, 0.15, 0], 0],
+        ],
         'Hai tháp điểm nhấn': [
           ['crescent_podium_a', [-34, 0, 0], 0],
           ['crescent_shaft_a', [-34, 4.45, 0], 0],
@@ -503,11 +528,21 @@
         ],
         'Chân tháp Vành Mây': [
           ['crescent_podium_a', [0, 0, 0], 0],
+          ['crescent_shaft_a', [0, 4.45, 0], 0],
           ['player', [2, 0.36, 17.5], Math.PI],
+        ],
+        'Vành Mây tầm trung': [
+          ['crescent_podium_a', [0, 0, 0], 0],
+          ['crescent_shaft_a', [0, 4.45, 0], 0],
         ],
         'Chân tháp Nhịp Trời': [
           ['bundled_podium_a', [0, 0, 0], 0],
+          ['bundled_shaft_a', [0, 4.45, 0], 0],
           ['player', [2, 0.36, 20.5], Math.PI],
+        ],
+        'Nhịp Trời tầm trung': [
+          ['bundled_podium_a', [0, 0, 0], 0],
+          ['bundled_shaft_a', [0, 4.45, 0], 0],
         ],
         'Dãy nhà tầm trung': [
           ...MIDRISE_RECIPES.flatMap(midrisePlan),
@@ -642,6 +677,7 @@
       let display = null;
       let decal = null;
       const roadsignDecals = {};
+      const vacantNotice = vacancyNoticeMaterial(THREE);
 
       function roadsignDecalMaterial(name) {
         if (roadsignDecals[name]) return roadsignDecals[name];
@@ -738,21 +774,15 @@
         materialSets = Object.fromEntries(
           Object.entries(kits).map(([file, gltf]) => [
             file,
-            shopMaterials(
-              THREE,
-              file === 'park-parts.glb'
-                ? parkRecipe(THREE, recipes[state.recipeId])
-                : recipes[state.recipeId],
-              rows,
-              {
-                glowBoost: state.glow,
-                lightmap: kitLightmap(gltf.scene),
-                lightmapIntensity: state.ao ? 1 : 0,
-                legends,
-              },
-            ),
+            shopMaterials(THREE, recipes[state.recipeId], rows, {
+              glowBoost: kitGlowBoost(file, state.glow),
+              lightmap: kitLightmap(gltf.scene),
+              lightmapIntensity: state.ao ? 1 : 0,
+              legends,
+            }),
           ]),
         );
+        applyLandmarkGlow(materialSets['landmark-parts.glb']?.glow, rows);
         const midriseLightmap = kitLightmap(kits['midrise-parts.glb'].scene);
         midriseMaterials = Object.fromEntries(
           MIDRISE_RECIPES.map(({ palette }) => [
@@ -788,6 +818,8 @@
             const matName = mesh.material.name;
             if (matName === 'decal' && name.startsWith('roadsign_')) {
               mesh.material = roadsignDecalMaterial(name);
+            } else if (matName === 'decal' && name === 'notice_a') {
+              mesh.material = vacantNotice;
             } else {
               mesh.material = set[matName] ?? set.surface;
             }
@@ -958,8 +990,17 @@
           low: [0.9, 0.25, -1],
         }[view] ?? [0.8, 0.6, -1];
         const offset = new THREE.Vector3(...dir).normalize().multiplyScalar(radius * 1.9);
-        controls.target.copy(centre);
-        camera.position.copy(centre).add(offset);
+        const shot =
+          view === 'iso' && !focus && !query.has('zoom')
+            ? LANDMARK_VIEWS[state.selection.name]
+            : null;
+        if (shot) {
+          controls.target.fromArray(shot.target);
+          camera.position.fromArray(shot.position);
+        } else {
+          controls.target.copy(centre);
+          camera.position.copy(centre).add(offset);
+        }
         camera.near = Math.max(0.05, radius * 0.005);
         camera.far = Math.max(60, radius * 8);
         camera.updateProjectionMatrix();
@@ -983,6 +1024,7 @@
         const furniture = $('furnitureList');
         const river = $('riverList');
         const park = $('parkList');
+        const alley = $('alleyList');
         const landmark = $('landmarkList');
         const midrise = $('midriseList');
         for (const [name, info] of Object.entries(slotOf)) {
@@ -1003,6 +1045,7 @@
               'furniture-parts.glb': furniture,
               'river-parts.glb': river,
               'park-parts.glb': park,
+              'alley-parts.glb': alley,
               'landmark-parts.glb': landmark,
               'midrise-parts.glb': midrise,
             }[info.kit] ?? lounge;
@@ -1040,9 +1083,9 @@
         exposure: (v) => (renderer.toneMappingExposure = v),
         glow: (v) => {
           state.glow = v;
-          eachMaterial((material, set) => {
-            if (material === set.glow) material.color.setScalar(v);
-          });
+          for (const [file, set] of Object.entries(materialSets))
+            set.glow.color.setScalar(kitGlowBoost(file, v));
+          for (const set of Object.values(midriseMaterials)) set.glow.color.setScalar(v);
         },
         bloomStrength: (v) => (bloom.strength = v),
         bloomThreshold: (v) => (bloom.threshold = v),
