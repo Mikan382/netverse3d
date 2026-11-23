@@ -19,6 +19,12 @@ pnpm --filter @netverse/web-3d test
 
 Test khói chỉ chạy khi mô hình là tệp thật; trên máy chưa `git lfs pull` hoặc trên CI chưa tải LFS thì ca đó được ghi là bỏ qua, không phải xanh.
 
+## Tài khoản
+
+Nút **Đăng nhập** trong tiệm mở các bước đăng ký, xác minh email, đăng nhập và đặt lại mật khẩu. Khi tải lại cùng tab, ứng dụng khôi phục phiên qua Identity. Refresh token chỉ lưu trong bộ nhớ phiên của tab, còn access token chỉ dùng trong bộ nhớ để lấy thông tin tài khoản. Đăng xuất dọn phiên trên trình duyệt và yêu cầu Identity thu hồi phiên.
+
+Các yêu cầu tài khoản dùng `/api/identity/v1` qua gateway. Khi chạy `pnpm dev`, Next.js chuyển đường dẫn này tới gateway Compose ở `http://127.0.0.1:58080`. Nếu gateway dùng cổng khác, truyền `GATEWAY_PORT` vào tiến trình dev. Xem [kịch bản chạy thử stack](../../docs/runbooks/stack-smoke.md) để bật Identity và nhận mã xác minh ở môi trường dev.
+
 Tham số trên URL: `?shop=<id>` chọn tiệm mẫu, `?quality=low|medium|high` ép mức chất lượng, `?probe=context-loss` giả lập mất ngữ cảnh WebGL để kiểm khôi phục.
 
 ## Điều khiển
