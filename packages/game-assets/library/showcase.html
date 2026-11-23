@@ -142,6 +142,7 @@
       import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
       import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+      import { createAlleyTrack } from '../runtime/alley-showcase.mjs';
       import {
         DEFAULT_SHOP_VIEWPOINTS,
         createCameraTrack,
@@ -155,8 +156,11 @@
         createRainSystem,
         getHolidayEvent,
         isHolidayFireworks,
-        roadLane,
       } from '../runtime/street-look.mjs';
+      import {
+        createAlleyCameraEffects,
+        createAlleyRoadMaterial,
+      } from './shared/alley-effects.mjs';
 
       const $ = (id) => document.getElementById(id);
       const canvas = $('gl');
@@ -203,20 +207,14 @@
         $('rainRow').hidden = false;
       }
 
-      let flyCurve = null;
-      if (isStreet) {
-        const block = await fetch(`../blocks/${scene3d.block ?? 'hem-mau'}.json`).then((r) =>
-          r.json(),
-        );
-        const lanePoints = roadLane(block).map(([x, z]) => new THREE.Vector3(x, 1.6, z));
-        flyCurve = new THREE.CatmullRomCurve3(lanePoints, false, 'catmullrom', 0.2);
-      }
-      let shopTrack = !isStreet
-        ? createCameraTrack(getShopViewpoints(scene3d.recipe ?? 'tim-neon'), {
+      let cameraTrack = isStreet
+        ? createAlleyTrack(
+            await fetch(`../blocks/${scene3d.block ?? 'hem-mau'}.json`).then((r) => r.json()),
+          )
+        : createCameraTrack(getShopViewpoints(scene3d.recipe ?? 'tim-neon'), {
             duration: 18,
             loop: false,
-          })
-        : null;
+          });
 
       const rows = paletteRows(config.palette);
       const recipes = Object.fromEntries(
@@ -265,6 +263,7 @@
         new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }),
       );
       composer.addPass(new RenderPass(scene, camera));
+      const cameraEffects = isStreet ? createAlleyCameraEffects(scene, camera, composer) : null;
       const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.2, 0.4, 0.9);
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
@@ -303,17 +302,22 @@
         ambient: state.ambient,
         spillStrength: [state.strip, state.screen, state.accent],
         glowBoost: state.glow,
-        wetness: state.wetness,
         roughness: calculateRoadRoughness(0.85, state.wetness),
       });
+      const wetRoad = isStreet
+        ? createAlleyRoadMaterial(materials.surface, gltf.scene, state.wetness)
+        : null;
 
       let triangles = 0;
       gltf.scene.traverse((mesh) => {
         if (!mesh.isMesh) return;
+        const isRoad =
+          /^road_[abc]_\d+(?:_\d+)?$/.test(mesh.name) ||
+          /^road_[abc]_\d+$/.test(mesh.parent?.name ?? '');
         const material = materials[mesh.material.name];
         if (!material)
           throw new Error(`scene uses material ${mesh.material.name} without a showcase material`);
-        mesh.material = material;
+        mesh.material = wetRoad && isRoad && material === materials.surface ? wetRoad : material;
         const geometry = mesh.geometry;
         triangles += geometry.index
           ? geometry.index.count / 3
@@ -334,21 +338,13 @@
         materials.glow.color.setScalar(state.glow);
       }
 
-      function applyWetness() {
-        const roughness = calculateRoadRoughness(0.85, state.wetness);
-        materials.surface.roughness = roughness;
-        if (materials.surface.uniforms?.wetness) {
-          materials.surface.uniforms.wetness.value = state.wetness;
-          materials.surface.uniforms.roughness.value = roughness;
-        }
-      }
-
       let flying = urlParams.get('fly') === '1';
-      let flyProgress = 0;
       let flyElapsed = 0;
-      const flySpeed = 0.05;
+      let previousFlightFrame = false;
       function setFlying(active) {
         flying = active;
+        previousFlightFrame = false;
+        cameraEffects?.setActive(active);
         const button = $('flyToggle');
         if (button) {
           button.setAttribute('aria-pressed', String(flying));
@@ -374,7 +370,10 @@
         $('wetness').addEventListener('input', () => {
           state.wetness = Number($('wetness').value);
           document.querySelector('output[for="wetness"]').textContent = state.wetness.toFixed(2);
-          applyWetness();
+          if (wetRoad) {
+            wetRoad.uniforms.wetness.value = state.wetness;
+            wetRoad.uniforms.roughness.value = calculateRoadRoughness(0.85, state.wetness);
+          }
         });
       }
 
@@ -447,7 +446,7 @@
           state.id = id;
           recolorShowcase(THREE, materials, recipes[id], rows);
           if (!isStreet) {
-            shopTrack = createCameraTrack(getShopViewpoints(state.id), {
+            cameraTrack = createCameraTrack(getShopViewpoints(state.id), {
               duration: 18,
               loop: false,
             });
@@ -475,33 +474,31 @@
       renderer.setAnimationLoop(() => {
         const delta = clock.getDelta();
         if (flying) {
-          if (isStreet && flyCurve) {
-            flyProgress = (flyProgress + delta * flySpeed) % 1;
-            const pos = flyCurve.getPointAt(flyProgress);
-            const ahead = flyCurve.getPointAt((flyProgress + 0.03) % 1);
-            camera.position.copy(pos);
-            camera.lookAt(ahead.x, 1.6, ahead.z);
-          } else if (!isStreet && shopTrack) {
-            flyElapsed += delta;
-            const sample = shopTrack.sample(flyElapsed);
-            camera.position.set(...sample.position);
-            camera.lookAt(...sample.target);
-            controls.target.set(...sample.target);
-            if (sample.done) {
-              setFlying(false);
-              flyElapsed = 0;
-            }
+          flyElapsed += Math.min(delta, 0.1);
+          const sample = cameraTrack.sample(flyElapsed);
+          cameraEffects?.sample(sample, previousFlightFrame);
+          previousFlightFrame = true;
+          camera.position.fromArray(sample.position);
+          camera.lookAt(...sample.target);
+          controls.target.fromArray(sample.target);
+          if (sample.done) {
+            setFlying(false);
+            flyElapsed = 0;
           }
         } else {
           controls.update();
         }
-        if (rain && state.wetness > 0) {
-          rain.update(camera, delta, {
-            rainCount: Math.round(1800 * state.wetness),
-            rainSpeed: 20 * state.wetness,
-            windAngle: 0.18,
-            wetness: state.wetness,
-          });
+        if (rain) {
+          rain.mesh.visible = state.wetness > 0;
+          if (rain.mesh.visible) {
+            rain.update(camera, delta, {
+              rainCount: Math.round(1800 * state.wetness),
+              rainSpeed: 20 * state.wetness,
+              windAngle: 0.18,
+              wetness: state.wetness,
+            });
+          }
+          wetRoad.uniforms.rainTime.value = clock.elapsedTime;
         }
         if (fireworks) fireworks.update(delta);
         renderer.info.reset();
