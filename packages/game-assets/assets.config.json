@@ -818,6 +818,24 @@
           "maxTriangles": 500,
           "size": [1.82, 2.05, 0.27],
           "anchors": ["collision_main"]
+        },
+        "crate": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.53, 0.91, 0.4],
+          "anchors": ["collision_main"]
+        },
+        "gas": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.36, 0.73, 0.36],
+          "anchors": ["collision_main"]
+        },
+        "mirror": {
+          "variants": ["a"],
+          "maxTriangles": 600,
+          "size": [0.67, 2.64, 0.4],
+          "anchors": ["collision_main"]
         }
       }
     }
