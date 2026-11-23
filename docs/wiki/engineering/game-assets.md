@@ -225,6 +225,8 @@ Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông d�
 
 Lô trống trong bộ Đồ hẻm ghép bốn tấm `plot_a` thành nền 8 × 8 m ngang vỉa hè. Module `fence_a` dài 4 m, có khung thép có gân và hộp va chạm. `notice_a` có hai chân, mặt chữ 4:1 và viền sáng. Lab và danh mục vẽ chữ **LÔ TRỐNG** lên mặt `decal`.
 
+Đồ lặt vặt trong hẻm gồm chồng ba két nhựa `crate_a`, bình gas có van và quai `gas_a` và gương cầu trên trụ `mirror_a`. Mặt gương dùng hàng `screen`, cả ba món có hộp va chạm. Trụ nước và cọc chắn trong mẫu ghép dùng lại `hydrant_a` và `bollard_a` của bộ tiện ích phố.
+
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời
 
 Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thế giới ngoài tiệm dùng chung một chuẩn ánh sáng, bầu trời và sương khai báo tập trung tại `packages/game-assets/runtime/street-look.mjs` thay vì tự đặt đèn riêng lẻ ở từng cảnh:
