@@ -87,7 +87,16 @@
     "pier": "a",
     "deck": "a",
     "pylon": "a",
-    "ramp": "a"
+    "ramp": "a",
+    "park_tile": "a",
+    "park_tree": "a",
+    "park_planting": "a",
+    "park_seat": "a",
+    "park_lamp": "a",
+    "park_bin": "a",
+    "park_gate": "a",
+    "park_fountain": "a",
+    "park_play": "a"
   },
   "layout": {
     "cells": [3, 4],
