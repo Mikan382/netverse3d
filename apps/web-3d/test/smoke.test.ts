@@ -16,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { dirname, extname, join, resolve } from 'node:path';
 import { after, before, test, type TestContext } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { identityCalls, serveIdentityFixture } from './identity-fixture.ts';
 
 type StageState = Record<string, string>;
 
@@ -79,6 +80,10 @@ function fileFor(pathname: string): string | null {
 
 before(async () => {
   server = createServer((request, response) => {
+    if (request.url?.startsWith('/api/identity/v1/')) {
+      void serveIdentityFixture(request, response);
+      return;
+    }
     const file = fileFor(decodeURIComponent(request.url ?? '/'));
     if (!file) {
       response.writeHead(404).end();
@@ -212,7 +217,11 @@ function consoleErrorsOf(stderr: string) {
     .map(message);
 }
 
-async function renderPage(path: string, settled: (state: StageState) => boolean) {
+async function renderPage(
+  path: string,
+  settled: (state: StageState) => boolean,
+  exercise?: (browser: Devtools) => Promise<void>,
+) {
   if (!chrome) throw new Error('no chrome');
   const profile = mkdtempSync(join(tmpdir(), 'web-3d-smoke-'));
   const child = spawn(chrome, [...CHROME_FLAGS, `--user-data-dir=${profile}`, 'about:blank'], {
@@ -235,6 +244,7 @@ async function renderPage(path: string, settled: (state: StageState) => boolean)
       if (settled(state)) break;
       await sleep(POLL_INTERVAL);
     }
+    await exercise?.(devtools);
     const dom = await devtools
       .evaluate<string>('document.documentElement.outerHTML')
       .catch(() => '');
@@ -261,12 +271,12 @@ function modelsArePointers(): boolean {
   return head.toString('utf8') === LFS_HEAD;
 }
 
-function browserReady(context: TestContext): boolean {
+function browserReady(context: TestContext, needsModels = true): boolean {
   if (!existsSync(join(OUT, 'index.html'))) {
     context.skip('chưa có bản xuất tĩnh');
     return false;
   }
-  if (modelsArePointers()) {
+  if (needsModels && modelsArePointers()) {
     context.skip('mô hình chỉ là con trỏ LFS, chạy git lfs pull để thử trang');
     return false;
   }
@@ -313,4 +323,107 @@ test('mất ngữ cảnh WebGL rồi khôi phục thì cảnh dựng lại, khô
   assert.ok(Number(page.attribute('rebuilds')) >= 2, `rebuilds=${page.attribute('rebuilds')}`);
   assert.ok(Number(page.attribute('frames')) >= 1, `frames=${page.attribute('frames')}`);
   assert.deepEqual(page.consoleErrors, []);
+});
+
+test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại mật khẩu', async (context) => {
+  if (!browserReady(context, false)) return;
+  const realModels = !modelsArePointers();
+  const page = await renderPage(
+    '/',
+    (state) =>
+      realModels ? state.ready === 'true' && Number(state.frames) > 0 : Boolean(state.recipe),
+    async (browser) => {
+      async function waitFor(expression: string) {
+        const deadline = Date.now() + 15000;
+        while (Date.now() < deadline) {
+          if (await browser.evaluate<boolean>(`Boolean(${expression})`).catch(() => false)) return;
+          await sleep(100);
+        }
+        assert.fail(`Trình duyệt chưa ở trạng thái: ${expression}`);
+      }
+      const dialog = `document.querySelector('dialog[open]')`;
+      const title = `${dialog}?.querySelector('h1')?.textContent`;
+      const accountButton = `document.querySelector('[aria-label="Tài khoản"] button:not([disabled])')`;
+
+      async function click(query: string) {
+        await waitFor(query);
+        await browser.evaluate(`(${query}).click()`);
+      }
+      async function submit(fields: Record<string, string>) {
+        for (const [name, value] of Object.entries(fields)) {
+          await browser.evaluate(
+            `(${dialog}.querySelector('[name="${name}"]')).value = ${JSON.stringify(value)}`,
+          );
+        }
+        await click(`${dialog}?.querySelector('button[type="submit"]:not([disabled])')`);
+      }
+      async function heading(label: string) {
+        await waitFor(`${title} === ${JSON.stringify(label)}`);
+      }
+      const email = 'player@example.test';
+
+      await click(accountButton);
+      await heading('Đăng nhập');
+      await click(`${dialog}?.querySelector('form + div button:first-child')`);
+      await heading('Tạo tài khoản');
+      await submit({ email, displayName: 'Người chơi thử', password: 'test-password-1' });
+      await heading('Xác minh email');
+      await click(`${dialog}?.querySelector('form + div button:last-child')`);
+      await waitFor(`${dialog}?.querySelector('[role="status"]')`);
+      await submit({ code: '000000' });
+      await waitFor(
+        `${dialog}?.querySelector('[role="alert"]')?.textContent?.includes('Mã không đúng')`,
+      );
+      await submit({ code: '091234' });
+      await heading('Đăng nhập');
+      assert.equal(
+        await browser.evaluate(`${dialog}.querySelector('[name="email"]').value`),
+        email,
+      );
+      await submit({ password: 'test-password-1' });
+      await waitFor(`${accountButton}?.textContent === 'Đăng xuất' && !${dialog}`);
+      await waitFor(
+        `sessionStorage.getItem('netverse.identity.refresh') === 'browser-test-refresh-2'`,
+      );
+
+      await browser.send('Page.reload');
+      await waitFor(
+        `${accountButton}?.textContent === 'Đăng xuất' && sessionStorage.getItem('netverse.identity.refresh') === 'browser-test-refresh-3'`,
+      );
+      await click(accountButton);
+      await heading('Đăng nhập');
+      await waitFor(`sessionStorage.getItem('netverse.identity.refresh') === null`);
+      await browser.send('Page.reload');
+      await waitFor(`${accountButton}?.textContent === 'Đăng nhập' && !${dialog}`);
+      await click(accountButton);
+      await heading('Đăng nhập');
+      await click(`${dialog}?.querySelector('form + div button:last-child')`);
+      await heading('Quên mật khẩu?');
+      await submit({ email });
+      await heading('Đặt lại mật khẩu');
+      await submit({ code: '004322', password: 'test-password-2' });
+      await heading('Đăng nhập');
+      await submit({ password: 'test-password-2' });
+      await waitFor(`${accountButton}?.textContent === 'Đăng xuất' && !${dialog}`);
+      if (realModels) await waitFor(`document.querySelector('#stage')?.dataset.ready === 'true'`);
+      assert.equal(await browser.evaluate('window.location.pathname'), '/');
+    },
+  );
+  assert.match(page.dom, /<canvas[^>]*id="gl"/);
+  assert.deepEqual(identityCalls, [
+    'auth/register',
+    'auth/resend-verification',
+    'auth/verify-email',
+    'auth/verify-email',
+    'auth/login',
+    'me',
+    'auth/refresh',
+    'auth/refresh',
+    'me',
+    'auth/logout',
+    'auth/password/forgot',
+    'auth/password/reset',
+    'auth/login',
+    'me',
+  ]);
 });
