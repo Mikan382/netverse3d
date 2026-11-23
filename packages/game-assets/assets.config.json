@@ -781,6 +781,26 @@
           "anchors": ["collision_main"]
         }
       }
+    },
+    {
+      "file": "alley-parts.glb",
+      "source": "parts-alley.blend",
+      "generator": "pipeline/make_alley_kit.py",
+      "lightmap": true,
+      "slots": {
+        "tree": {
+          "variants": ["a", "b"],
+          "maxTriangles": 3000,
+          "size": [3.9, 6.6, 3.9],
+          "anchors": ["collision_main"]
+        },
+        "pit": {
+          "variants": ["a"],
+          "maxTriangles": 300,
+          "size": [1.001, 0.151, 1.001],
+          "grid": { "size": 1, "axes": [0, 2] }
+        }
+      }
     }
   ],
   "scenes": [

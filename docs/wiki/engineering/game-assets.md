@@ -221,6 +221,8 @@ Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông d�
 
 `landmark-parts.glb` chứa hai tháp gợi hình của REQ-042. Vành Mây lấy cảm hứng từ dáng thuôn và sàn tròn nhô ngang. Nhịp Trời lấy cảm hứng từ nhóm thân cao thấp xếp bậc có chóp. Hình học, tên và chi tiết thuộc Netverse. Hai chân tháp gồm quảng trường, bậc và sảnh trước, với va chạm chặn thân đế. Thân lắp trên đế và có bản nhẹ từ 190 m. Phòng lab có bộ ghép tổng thể và hai bộ riêng để so chân tháp với nhân vật.
 
+`alley-parts.glb` đăng ký hai cây phố và bồn gốc 1 m. Cây cao khoảng 6,5 m có tán rộng, cây thấp khoảng 3,5 m có tán thưa cho hẻm nhỏ. Tán dùng hàng `foliage` chung với công viên, thân dùng `body` và `soft`. Bồn có viền đá và lưới gang ngang cao độ vỉa hè 0,15 m. Phòng lab đặt cả hai cây cạnh cột điện và nhân vật.
+
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời
 
 Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thế giới ngoài tiệm dùng chung một chuẩn ánh sáng, bầu trời và sương khai báo tập trung tại `packages/game-assets/runtime/street-look.mjs` thay vì tự đặt đèn riêng lẻ ở từng cảnh:

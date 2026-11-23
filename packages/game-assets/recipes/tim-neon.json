@@ -24,6 +24,8 @@
   },
   "keyboard": { "colorway": "neon", "led": "rainbow" },
   "variants": {
+    "tree": "a",
+    "pit": "a",
     "desk": "a",
     "monitor": "a",
     "keyboard": "a",
