@@ -217,6 +217,8 @@ Theo tiêu chuẩn mỹ thuật một chuẩn render và năm vật liệu chung
 
 Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông dài 48 m (3 tấm `water_a` 16 m) với bờ kè hai bên (gồm cả bậc bến và bến thuyền) cùng cầu dây văng vắt ngang (đoạn dẫn nam, nhịp cầu, trụ tháp, đoạn dẫn bắc) và nhân vật `player` để đối chiếu tỷ lệ.
 
+`midrise-parts.glb` có tầng chung cư ban công và lồng phơi, tầng văn phòng băng kính, tầng trệt cửa hàng và lối xuống hầm, mái kỹ thuật và sân phơi. Module ngang và cao 4 m theo giao diện đã đề xuất ở #251. Bộ này đứng riêng trong lúc chờ `tower-parts.glb` để nhóm có thể kiểm mẫu tại lab. `midrise-look.mjs` lắp ba tòa 6, 9 và 12 tầng với nhịp mặt đứng và bộ màu khác nhau.
+
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời
 
 Theo [ADR-0019](../../decisions/ADR-0019-registered-parts-and-one-render-standard.md), thế giới ngoài tiệm dùng chung một chuẩn ánh sáng, bầu trời và sương khai báo tập trung tại `packages/game-assets/runtime/street-look.mjs` thay vì tự đặt đèn riêng lẻ ở từng cảnh:

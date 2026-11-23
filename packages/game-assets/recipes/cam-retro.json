@@ -87,7 +87,10 @@
     "pier": "a",
     "deck": "a",
     "pylon": "a",
-    "ramp": "a"
+    "ramp": "a",
+    "midrise_floor": "a",
+    "midrise_ground": "a",
+    "midrise_roof": "a"
   },
   "layout": {
     "cells": [3, 3],

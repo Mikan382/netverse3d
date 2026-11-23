@@ -40,7 +40,8 @@
       "traffic-parts.glb": "Giao thông",
       "vehicle-parts.glb": "Xe cộ",
       "furniture-parts.glb": "Tiện ích phố",
-      "river-parts.glb": "Sông và cầu"
+      "river-parts.glb": "Sông và cầu",
+      "midrise-parts.glb": "Module nhà tầm trung"
     },
     "slots": {
       "water": "Mặt nước",
@@ -113,7 +114,10 @@
       "light": "Đèn trần",
       "marker": "Vạch sàn",
       "motorbike": "Xe máy",
-      "car": "Ô tô"
+      "car": "Ô tô",
+      "midrise_floor": "Tầng chung cư và văn phòng",
+      "midrise_ground": "Tầng trệt và lối xuống hầm",
+      "midrise_roof": "Mái kỹ thuật và sân phơi"
     },
     "variantNames": {
       "cart_a": "Xe bánh mì",
