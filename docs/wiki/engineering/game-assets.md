@@ -217,6 +217,8 @@ Theo tiêu chuẩn mỹ thuật một chuẩn render và năm vật liệu chung
 
 Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông dài 48 m (3 tấm `water_a` 16 m) với bờ kè hai bên (gồm cả bậc bến và bến thuyền) cùng cầu dây văng vắt ngang (đoạn dẫn nam, nhịp cầu, trụ tháp, đoạn dẫn bắc) và nhân vật `player` để đối chiếu tỷ lệ.
 
+`park-parts.glb` có ô 4 m cho cỏ, lối lát và bó viền, hai cỡ cây dùng hàng `trim` cho lá và `body` hoặc `soft` cho thân theo #224, bụi cây, bồn hoa, ghế đá, đèn thấp, thùng rác, cổng, đài phun và cầu trượt. Đài phun dùng hàng màu `body` như mặt nước của bộ sông, mặt nước tĩnh. `park-look.mjs` ghép nền từ 8 đến 16 m và đưa mẫu 16 m vào lab với nhân vật. Cổng có hai hộp va chạm riêng ở trụ để chừa lối đi giữa.
+
 `midrise-parts.glb` có tầng chung cư ban công và lồng phơi, tầng văn phòng băng kính, tầng trệt cửa hàng và lối xuống hầm, mái kỹ thuật và sân phơi. Module ngang và cao 4 m theo giao diện đã đề xuất ở #251. Bộ này đứng riêng trong lúc chờ `tower-parts.glb` để nhóm có thể kiểm mẫu tại lab. `midrise-look.mjs` lắp ba tòa 6, 9 và 12 tầng với nhịp mặt đứng và bộ màu khác nhau.
 
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời

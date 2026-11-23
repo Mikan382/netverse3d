@@ -41,6 +41,7 @@
       "vehicle-parts.glb": "Xe cộ",
       "furniture-parts.glb": "Tiện ích phố",
       "river-parts.glb": "Sông và cầu",
+      "park-parts.glb": "Công viên và quảng trường",
       "midrise-parts.glb": "Module nhà tầm trung"
     },
     "slots": {
@@ -115,6 +116,15 @@
       "marker": "Vạch sàn",
       "motorbike": "Xe máy",
       "car": "Ô tô",
+      "park_tile": "Ô cỏ, gạch và bó viền",
+      "park_tree": "Cây công viên",
+      "park_planting": "Bụi cây và bồn hoa",
+      "park_seat": "Ghế đá",
+      "park_lamp": "Đèn công viên thấp",
+      "park_bin": "Thùng rác công viên",
+      "park_gate": "Cổng công viên",
+      "park_fountain": "Đài phun nước",
+      "park_play": "Cầu trượt sân chơi",
       "midrise_floor": "Tầng chung cư và văn phòng",
       "midrise_ground": "Tầng trệt và lối xuống hầm",
       "midrise_roof": "Mái kỹ thuật và sân phơi"

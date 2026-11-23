@@ -196,6 +196,8 @@
         <div class="list" id="furnitureList"></div>
         <h2>Sông và cầu</h2>
         <div class="list" id="riverList"></div>
+        <h2>Công viên</h2>
+        <div class="list" id="parkList"></div>
         <h2>Nhà tầm trung</h2>
         <div class="list" id="midriseList"></div>
         <h2>Ghép thử mối nối</h2>
@@ -308,6 +310,7 @@
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
+      import { PARK_EXHIBIT, parkRecipe } from '../runtime/park-look.mjs';
       import { MIDRISE_RECIPES, midrisePlan } from '../runtime/midrise-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import {
@@ -488,6 +491,7 @@
           ['player', [2.7, 1.35, 2.0], Math.PI / 2],
           ['player', [-6, 0.4, -4.5], 0],
         ],
+        'Công viên 16 m': PARK_EXHIBIT,
         'Dãy nhà tầm trung': [
           ...MIDRISE_RECIPES.flatMap(midrisePlan),
           ['player', [0, 0, 6.4], Math.PI],
@@ -717,12 +721,19 @@
         materialSets = Object.fromEntries(
           Object.entries(kits).map(([file, gltf]) => [
             file,
-            shopMaterials(THREE, recipes[state.recipeId], rows, {
-              glowBoost: state.glow,
-              lightmap: kitLightmap(gltf.scene),
-              lightmapIntensity: state.ao ? 1 : 0,
-              legends,
-            }),
+            shopMaterials(
+              THREE,
+              file === 'park-parts.glb'
+                ? parkRecipe(THREE, recipes[state.recipeId])
+                : recipes[state.recipeId],
+              rows,
+              {
+                glowBoost: state.glow,
+                lightmap: kitLightmap(gltf.scene),
+                lightmapIntensity: state.ao ? 1 : 0,
+                legends,
+              },
+            ),
           ]),
         );
         const midriseLightmap = kitLightmap(kits['midrise-parts.glb'].scene);
@@ -948,6 +959,7 @@
         const traffic = $('trafficList');
         const furniture = $('furnitureList');
         const river = $('riverList');
+        const park = $('parkList');
         const midrise = $('midriseList');
         for (const [name, info] of Object.entries(slotOf)) {
           const button = document.createElement('button');
@@ -966,6 +978,7 @@
               'vehicle-parts.glb': street,
               'furniture-parts.glb': furniture,
               'river-parts.glb': river,
+              'park-parts.glb': park,
               'midrise-parts.glb': midrise,
             }[info.kit] ?? lounge;
           list.append(button);
