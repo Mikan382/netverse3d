@@ -196,6 +196,8 @@
         <div class="list" id="furnitureList"></div>
         <h2>Sông và cầu</h2>
         <div class="list" id="riverList"></div>
+        <h2>Công viên</h2>
+        <div class="list" id="parkList"></div>
         <h2>Tháp điểm nhấn</h2>
         <div class="list" id="landmarkList"></div>
         <h2>Ghép thử mối nối</h2>
@@ -308,6 +310,7 @@
       import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       import { createActorLook } from '../runtime/actor-look.mjs';
+      import { PARK_EXHIBIT, parkRecipe } from '../runtime/park-look.mjs';
       import { kitAnchors, paletteRows } from '../runtime/shop-look.mjs';
       import { kitLightmap, previewKitFiles, shopMaterials } from '../runtime/three-shop.mjs';
       import { legendTextures } from '../runtime/keyboard-legends.mjs';
@@ -482,6 +485,7 @@
           ['player', [2.7, 1.35, 2.0], Math.PI / 2],
           ['player', [-6, 0.4, -4.5], 0],
         ],
+        'Công viên 16 m': PARK_EXHIBIT,
         'Hai tháp điểm nhấn': [
           ['crescent_podium_a', [-34, 0, 0], 0],
           ['crescent_shaft_a', [-34, 4.45, 0], 0],
@@ -720,12 +724,19 @@
         materialSets = Object.fromEntries(
           Object.entries(kits).map(([file, gltf]) => [
             file,
-            shopMaterials(THREE, recipes[state.recipeId], rows, {
-              glowBoost: state.glow,
-              lightmap: kitLightmap(gltf.scene),
-              lightmapIntensity: state.ao ? 1 : 0,
-              legends,
-            }),
+            shopMaterials(
+              THREE,
+              file === 'park-parts.glb'
+                ? parkRecipe(THREE, recipes[state.recipeId])
+                : recipes[state.recipeId],
+              rows,
+              {
+                glowBoost: state.glow,
+                lightmap: kitLightmap(gltf.scene),
+                lightmapIntensity: state.ao ? 1 : 0,
+                legends,
+              },
+            ),
           ]),
         );
         materials = Object.values(materialSets)[0];
@@ -933,6 +944,7 @@
         const traffic = $('trafficList');
         const furniture = $('furnitureList');
         const river = $('riverList');
+        const park = $('parkList');
         const landmark = $('landmarkList');
         for (const [name, info] of Object.entries(slotOf)) {
           const button = document.createElement('button');
@@ -951,6 +963,7 @@
               'vehicle-parts.glb': street,
               'furniture-parts.glb': furniture,
               'river-parts.glb': river,
+              'park-parts.glb': park,
               'landmark-parts.glb': landmark,
             }[info.kit] ?? lounge;
           list.append(button);
