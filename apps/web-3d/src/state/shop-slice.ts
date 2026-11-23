@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { PlayerState } from '@netverse/game-shared/movement';
 
 export type QualityLevel = 'low' | 'medium' | 'high';
 
@@ -23,6 +24,7 @@ export interface SceneState {
   lost: boolean;
   ready: boolean;
   face: boolean;
+  seatReady: boolean;
 }
 
 export interface RecipeOption {
@@ -43,6 +45,19 @@ export interface SeatingState {
   error: string | null;
 }
 
+export interface RentalRequest {
+  readonly seatId: string;
+  readonly from: PlayerState;
+}
+
+export interface SeatSession {
+  readonly seatId: string;
+  readonly endsAt: number;
+  readonly offset: number;
+}
+
+export type SessionEndReason = 'expired' | 'left';
+
 export const NO_ROOM: SeatingState = {
   available: false,
   seated: null,
@@ -58,9 +73,16 @@ export interface ShopState {
   error: string | null;
   nearbySeat: string | null;
   seating: SeatingState;
+  rentalConfirmation: RentalRequest | null;
+  session: SeatSession | null;
+  sessionNotice: SessionEndReason | null;
 }
 
 export const DEFAULT_RECIPE = 'tim-neon';
+
+export function remainingSeconds(endsAt: number, now: number, offset: number): number {
+  return Math.max(0, Math.floor((endsAt - now - offset) / 1000));
+}
 
 export function initialShopState(recipeId = DEFAULT_RECIPE): ShopState {
   return {
@@ -74,11 +96,15 @@ export function initialShopState(recipeId = DEFAULT_RECIPE): ShopState {
       lost: false,
       ready: false,
       face: false,
+      seatReady: false,
     },
     recipes: [],
     error: null,
     nearbySeat: null,
     seating: NO_ROOM,
+    rentalConfirmation: null,
+    session: null,
+    sessionNotice: null,
   };
 }
 
@@ -100,9 +126,35 @@ export const shopSlice = createSlice({
     },
     nearbySeatChanged(state, action: PayloadAction<string | null>) {
       state.nearbySeat = action.payload;
+      if (state.rentalConfirmation && state.rentalConfirmation.seatId !== action.payload) {
+        state.rentalConfirmation = null;
+      }
     },
     seatingChanged(state, action: PayloadAction<SeatingState>) {
       state.seating = action.payload;
+    },
+    rentalConfirmationRequested(state, action: PayloadAction<RentalRequest>) {
+      state.rentalConfirmation = action.payload;
+    },
+    rentalConfirmationCancelled(state) {
+      state.rentalConfirmation = null;
+    },
+    sessionChanged(state, action: PayloadAction<SeatSession | null>) {
+      state.session = action.payload;
+      if (action.payload) state.sessionNotice = null;
+    },
+    sessionEnded(state, action: PayloadAction<SessionEndReason>) {
+      state.session = null;
+      state.sessionNotice = action.payload;
+    },
+    sessionNoticeCleared(state) {
+      state.sessionNotice = null;
+    },
+    rentalConfirmationAccepted: {
+      reducer(state) {
+        state.rentalConfirmation = null;
+      },
+      prepare: (request: RentalRequest) => ({ payload: request }),
     },
     useRequested() {},
     recipeRequested: {
@@ -123,6 +175,12 @@ export const {
   errorRaised,
   nearbySeatChanged,
   seatingChanged,
+  rentalConfirmationRequested,
+  rentalConfirmationCancelled,
+  rentalConfirmationAccepted,
+  sessionChanged,
+  sessionEnded,
+  sessionNoticeCleared,
   useRequested,
   recipeRequested,
   qualityRequested,

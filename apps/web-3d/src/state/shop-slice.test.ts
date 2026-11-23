@@ -6,11 +6,13 @@ import {
   isQualityLevel,
   nearbySeatChanged,
   qualityRequested,
+  rentalConfirmationRequested,
   recipeRequested,
   sceneChanged,
   seatingChanged,
   useRequested,
   statsReported,
+  shopSlice,
 } from './shop-slice.ts';
 import { createAppStore } from './store.ts';
 
@@ -63,6 +65,18 @@ test('máy trong tầm với được ghi vào kho và gỡ đi khi người ch�
   assert.equal(store.getState().shop.nearbySeat, null);
 });
 
+test('rời khỏi ghế đang thuê thì hộp xác nhận tự đóng', () => {
+  const { store } = createAppStore();
+  store.dispatch(
+    seatingChanged({ available: true, seated: null, taken: [], denied: null, error: null }),
+  );
+  store.dispatch(nearbySeatChanged('seat-1'));
+  store.dispatch(rentalConfirmationRequested({ seatId: 'seat-1', from: { x: 0, z: 0, yaw: 0 } }));
+  assert.equal(store.getState().shop.rentalConfirmation?.seatId, 'seat-1');
+  store.dispatch(nearbySeatChanged(null));
+  assert.equal(store.getState().shop.rentalConfirmation, null);
+});
+
 test('lệnh dùng máy từ giao diện không đổi kho, lớp ứng dụng nhận qua listener', () => {
   const { store, listener } = createAppStore();
   let asked = 0;
@@ -98,4 +112,19 @@ test('chưa có phòng thì chuyện ngồi máy ở trạng thái tắt; phòng
   store.dispatch(seatingChanged(seated));
   assert.deepEqual(store.getState().shop.seating, seated);
   assert.deepEqual(JSON.parse(JSON.stringify(store.getState().shop)), store.getState().shop);
+});
+
+test('hết phiên xoá dữ liệu thuê và giữ lý do để giao diện báo', () => {
+  const initial = initialShopState();
+  const active = {
+    ...initial,
+    session: { seatId: 'seat-2', endsAt: 31_000, offset: 2_000 },
+    sessionNotice: null,
+  };
+  const ended = shopSlice.reducer(active, {
+    type: 'shop/sessionEnded',
+    payload: 'expired',
+  });
+  assert.equal(ended.session, null);
+  assert.equal(ended.sessionNotice, 'expired');
 });

@@ -11,10 +11,15 @@ import {
   isQualityLevel,
   nearbySeatChanged,
   qualityRequested,
+  rentalConfirmationAccepted,
+  rentalConfirmationCancelled,
+  rentalConfirmationRequested,
   recipeRequested,
   recipesLoaded,
   sceneChanged,
   seatingChanged,
+  sessionChanged,
+  sessionEnded,
   useRequested,
   statsReported,
 } from '../src/state/shop-slice.ts';
@@ -23,6 +28,7 @@ import type { Seat } from '../src/game/seats.ts';
 import { createRoomSession, type RoomSession } from '../src/net/room-session.ts';
 import Hud from '../src/ui/hud.tsx';
 import SeatPrompt from '../src/ui/seat-prompt.tsx';
+import SeatDesktop from '../src/ui/seat-desktop.tsx';
 import { vi } from '../src/ui/text/vi.ts';
 import styles from './shop-view.module.css';
 
@@ -32,8 +38,14 @@ const ROOM_MODE = process.env.NEXT_PUBLIC_ROOM;
 
 async function connectRoom(seats: readonly Seat[]) {
   if (ROOM_MODE !== 'fake') return null;
+  const requestedSeconds = Number(new URLSearchParams(window.location.search).get('session'));
+  const sessionSeconds =
+    Number.isSafeInteger(requestedSeconds) && requestedSeconds > 0 ? requestedSeconds : undefined;
   const { createFakeRoom } = await import('../dev/fake-room.ts');
-  return createFakeRoom(seats.map(({ seatId, footprint }) => ({ seatId, footprint }))).connect();
+  return createFakeRoom(
+    seats.map(({ seatId, footprint }) => ({ seatId, footprint })),
+    sessionSeconds === undefined ? {} : { sessionSeconds },
+  ).createConnection();
 }
 
 function guestTicket(): string {
@@ -49,6 +61,9 @@ function pickRecipe(ids: string[], requested: string | null): string {
 function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scene = useSelector((state: RootState) => state.shop.scene);
+  const nearbySeat = useSelector((state: RootState) => state.shop.nearbySeat);
+  const seating = useSelector((state: RootState) => state.shop.seating);
+  const sessionNotice = useSelector((state: RootState) => state.shop.sessionNotice);
 
   useEffect(() => {
     const { store, listener } = app;
@@ -62,6 +77,7 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
       const turn = roomTurn;
       session?.close();
       session = null;
+      store.dispatch(rentalConfirmationCancelled());
       store.dispatch(seatingChanged(NO_ROOM));
       shop?.setSeating(null, []);
       if (!shop) return;
@@ -77,7 +93,17 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
         shopId: store.getState().shop.scene.recipeId,
         ticket,
         onChange: (view) => {
-          store.dispatch(seatingChanged({ ...view, available: true, taken: [...view.taken] }));
+          store.dispatch(
+            seatingChanged({
+              available: true,
+              seated: view.seated,
+              taken: [...view.taken],
+              denied: view.denied,
+              error: view.error,
+            }),
+          );
+          store.dispatch(sessionChanged(view.session));
+          if (view.ended) store.dispatch(sessionEnded(view.ended.reason));
           shop?.setSeating(view.seated, view.taken);
         },
       });
@@ -96,6 +122,10 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
     const stopUse = listener.startListening({
       actionCreator: useRequested,
       effect: () => shop?.use(),
+    });
+    const stopRentalConfirmation = listener.startListening({
+      actionCreator: rentalConfirmationAccepted,
+      effect: (action) => session?.requestSeat(action.payload.seatId, action.payload.from),
     });
     const stopQuality = listener.startListening({
       actionCreator: qualityRequested,
@@ -119,7 +149,9 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
           onState: (state) => store.dispatch(sceneChanged(state)),
           onError: (message) => store.dispatch(errorRaised(message)),
           onNearbySeat: (seatId) => store.dispatch(nearbySeatChanged(seatId)),
-          onSeatRequest: (seatId, from) => session?.requestSeat(seatId, from),
+          onSeatRequest: (seatId, from) => {
+            if (session) store.dispatch(rentalConfirmationRequested({ seatId, from }));
+          },
           onLeaveRequest: () => session?.leaveSeat(),
         });
         const requested = params.get('quality');
@@ -146,6 +178,7 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
       stopRecipe();
       stopQuality();
       stopUse();
+      stopRentalConfirmation();
       roomTurn += 1;
       session?.close();
       session = null;
@@ -161,6 +194,11 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
       data-ready={String(scene.ready)}
       data-face={String(scene.face)}
       data-recipe={scene.recipeId}
+      data-nearby-seat={nearbySeat ?? ''}
+      data-room-available={String(seating.available)}
+      data-session-seat={seating.seated ?? ''}
+      data-session-notice-reason={sessionNotice ?? ''}
+      data-seat-ready={String(scene.seatReady)}
       data-rebuilds={scene.rebuilds}
       data-frames={scene.frames}
       data-restored={String(scene.restored)}
@@ -169,6 +207,7 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
       <canvas id="gl" className={styles.canvas} ref={canvasRef} aria-label={vi.app.stageLabel} />
       <Hud />
       <SeatPrompt />
+      <SeatDesktop />
     </div>
   );
 }
