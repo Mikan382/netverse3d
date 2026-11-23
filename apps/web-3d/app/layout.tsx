@@ -6,7 +6,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: vi.app.title,
   description: vi.app.description,
-  manifest: '/manifest.webmanifest',
+  manifest: '/manifest.json',
   icons: {
     icon: '/pwa/icon-192.png',
     apple: '/pwa/apple-touch-icon.png',

@@ -59,7 +59,6 @@ const TYPES: Record<string, string> = {
   '.mjs': 'text/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
-  '.webmanifest': 'application/manifest+json',
   '.png': 'image/png',
   '.glb': 'model/gltf-binary',
   '.txt': 'text/plain',
@@ -465,7 +464,9 @@ test('bản PWA cài được, cập nhật theo yêu cầu và báo mất kết
       const manifestUrl = await browser.evaluate<string>(
         `document.querySelector('link[rel="manifest"]').href`,
       );
-      const manifest = await fetch(manifestUrl).then((response) => response.json());
+      const manifestResponse = await fetch(manifestUrl);
+      assert.equal(manifestResponse.headers.get('Content-Type'), 'application/json');
+      const manifest = await manifestResponse.json();
       assert.equal(manifest.start_url, '/');
       assert.equal(manifest.display, 'standalone');
       assert.ok(

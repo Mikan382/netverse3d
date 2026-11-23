@@ -11,7 +11,6 @@ const TYPES = {
   '.mjs': 'text/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
-  '.webmanifest': 'application/manifest+json',
   '.png': 'image/png',
   '.glb': 'model/gltf-binary',
   '.txt': 'text/plain',
