@@ -19,6 +19,13 @@ pnpm --filter @netverse/web-3d test
 
 Test khói chỉ chạy khi mô hình là tệp thật; trên máy chưa `git lfs pull` hoặc trên CI chưa tải LFS thì ca đó được ghi là bỏ qua, không phải xanh.
 
+## Cài Netverse trên thiết bị
+
+- Mở bản web qua HTTPS hoặc dùng `pnpm --filter @netverse/web-3d build` rồi `preview` trên `localhost` để thử trên máy phát triển.
+- Trên Android, chọn **Cài ứng dụng** khi Chrome cung cấp nút này, hoặc dùng mục cài đặt ứng dụng trong menu trình duyệt. Trên iPhone, dùng Safari, chọn **Chia sẻ** rồi **Thêm vào MH chính**.
+- Biểu tượng mở thẳng trang game. Khi thấy **Cập nhật ứng dụng**, chọn nút này để tải bản mới. Phiên đăng nhập trong cùng cửa sổ được khôi phục sau khi tải lại.
+- Nếu mở game khi mất mạng, ứng dụng hiện trang thử lại. Game cần kết nối để tải cảnh và dùng dịch vụ. Service worker chỉ theo dõi điều hướng trang chính và không lưu dữ liệu API hay mô hình game.
+
 ## Tài khoản
 
 Nút **Đăng nhập** trong tiệm mở các bước đăng ký, xác minh email, đăng nhập và đặt lại mật khẩu. Khi tải lại cùng tab, ứng dụng khôi phục phiên qua Identity. Refresh token chỉ lưu trong bộ nhớ phiên của tab, còn access token chỉ dùng trong bộ nhớ để lấy thông tin tài khoản. Đăng xuất dọn phiên trên trình duyệt và yêu cầu Identity thu hồi phiên.

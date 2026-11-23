@@ -1,0 +1,23 @@
+.actions {
+  position: absolute;
+  z-index: 1;
+  bottom: var(--space-3);
+  left: var(--space-3);
+}
+
+.actions button {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--cyan);
+  border-radius: var(--radius-1);
+  background: var(--control);
+  color: var(--ink);
+  font: 650 var(--text-sm) var(--font);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.actions button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}

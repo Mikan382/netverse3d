@@ -4,6 +4,10 @@ export const vi = {
     description: 'Tiệm net 3D của Netverse',
     stageLabel: 'Tiệm net 3D',
   },
+  pwa: {
+    install: 'Cài ứng dụng',
+    update: 'Cập nhật ứng dụng',
+  },
   account: {
     accountLabel: 'Tài khoản',
     checking: 'Đang kiểm tra phiên…',
