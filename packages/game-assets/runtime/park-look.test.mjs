@@ -19,7 +19,7 @@ test('lô từ 8 đến 16 m có đủ ô ghép và khớp biên theo lưới 4 
 
 test('bộ ghép công viên có cửa vào, nước, sân chơi và người để so tỉ lệ', () => {
   const names = new Set(PARK_EXHIBIT.map(([name]) => name));
-  for (const name of ['park_gate_a', 'park_fountain_a', 'park_play_a', 'player']) {
+  for (const name of ['park_gate_a', 'park_fountain_a', 'park_play_a', 'bin_a', 'player']) {
     assert.ok(names.has(name), name);
   }
 });

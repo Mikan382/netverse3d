@@ -13,7 +13,11 @@
     "strip": ["#1ee8d2"],
     "keycap": ["#0fd4ff", "#19ffb0"],
     "screen": ["#36c7ff", "#9af5ff"],
-    "accent": ["#22e0c0"]
+    "accent": ["#22e0c0"],
+    "grass": ["#203b30", "#456c4b"],
+    "foliage": ["#294b39", "#668c63"],
+    "warm_lamp": ["#ffc27f", "#ffe1ae"],
+    "cool_water": ["#3d83ac", "#77dcff"]
   },
   "keyboard": { "colorway": "graphite", "led": "single" },
   "variants": {
@@ -93,7 +97,6 @@
     "park_planting": "a",
     "park_seat": "a",
     "park_lamp": "a",
-    "park_bin": "a",
     "park_gate": "a",
     "park_fountain": "a",
     "park_play": "a",

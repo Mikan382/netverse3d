@@ -107,11 +107,21 @@ test('dải nhiều màu đi qua đúng từng mốc', () => {
 test('ảnh dải màu có một hàng cho mỗi hàng màu của hợp đồng', () => {
   const image = paletteImage(ROWS, { body: ['#ffffff'] });
   assert.equal(image.width, PALETTE_WIDTH);
-  assert.equal(image.height, 12);
-  assert.equal(image.data.length, PALETTE_WIDTH * 12 * 4);
-  assert.deepEqual([...image.data.slice(0, 4)], [255, 255, 255, 255]);
+  assert.equal(image.height, ROWS.length);
+  assert.equal(image.data.length, PALETTE_WIDTH * ROWS.length * 4);
+  const body = ROWS.indexOf('body') * PALETTE_WIDTH * 4;
+  assert.deepEqual([...image.data.slice(body, body + 4)], [255, 255, 255, 255]);
   const strip = ROWS.indexOf('strip') * PALETTE_WIDTH * 4;
   assert.deepEqual([...image.data.slice(strip, strip + 4)], [0, 0, 0, 255]);
+});
+
+test('mở rộng bảng màu vẫn giữ nguyên tâm UV của mọi hàng cũ', () => {
+  const { surface, glow } = CONFIG.palette;
+  const original = [...surface, ...glow];
+  for (const [index, row] of original.entries()) {
+    assert.equal((ROWS.indexOf(row) + 0.5) / ROWS.length, (index + 0.5) / original.length);
+  }
+  for (const row of ['grass', 'foliage', 'warm_lamp', 'cool_water']) assert.ok(ROWS.includes(row));
 });
 
 test('đọc được socket từ tệp glTF và bỏ qua node lưới trùng kiểu tên', () => {
