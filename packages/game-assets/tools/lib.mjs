@@ -492,7 +492,17 @@ function sceneExpectation(scene, palette) {
 
 function kitParts(kit) {
   return Object.entries(kit.slots).flatMap(([slot, spec]) =>
-    spec.variants.map((variant) => ({ name: `${slot}_${variant}`, spec })),
+    spec.variants.flatMap((variant) => {
+      const name = `${slot}_${variant}`;
+      const parts = [{ name, spec }];
+      if (spec.lod?.suffix && !spec.variants.includes(`${variant}_${spec.lod.suffix}`)) {
+        parts.push({
+          name: `${name}_${spec.lod.suffix}`,
+          spec: { ...spec, maxTriangles: spec.lod.maxTriangles ?? spec.maxTriangles, anchors: [] },
+        });
+      }
+      return parts;
+    }),
   );
 }
 

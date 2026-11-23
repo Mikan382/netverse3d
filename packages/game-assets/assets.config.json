@@ -748,6 +748,46 @@
       }
     },
     {
+      "file": "landmark-parts.glb",
+      "source": "parts-landmark.blend",
+      "generator": "pipeline/make_landmark_kit.py",
+      "lightmap": true,
+      "slots": {
+        "crescent_shaft": {
+          "variants": ["a"],
+          "maxTriangles": 4700,
+          "size": [48, 175, 38],
+          "lod": {
+            "suffix": "low",
+            "distance": 190,
+            "maxTriangles": 420
+          }
+        },
+        "crescent_podium": {
+          "variants": ["a"],
+          "maxTriangles": 850,
+          "size": [48.1, 4.6, 44.1],
+          "anchors": ["collision_main"]
+        },
+        "bundled_shaft": {
+          "variants": ["a"],
+          "maxTriangles": 13500,
+          "size": [44, 230, 36],
+          "lod": {
+            "suffix": "low",
+            "distance": 190,
+            "maxTriangles": 480
+          }
+        },
+        "bundled_podium": {
+          "variants": ["a"],
+          "maxTriangles": 850,
+          "size": [60.1, 4.6, 50.1],
+          "anchors": ["collision_main"]
+        }
+      }
+    },
+    {
       "file": "midrise-parts.glb",
       "source": "parts-midrise.blend",
       "generator": "pipeline/make_midrise_kit.py",

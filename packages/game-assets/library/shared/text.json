@@ -42,6 +42,7 @@
       "furniture-parts.glb": "Tiện ích phố",
       "river-parts.glb": "Sông và cầu",
       "park-parts.glb": "Công viên và quảng trường",
+      "landmark-parts.glb": "Hai tháp điểm nhấn",
       "midrise-parts.glb": "Module nhà tầm trung"
     },
     "slots": {
@@ -125,6 +126,10 @@
       "park_gate": "Cổng công viên",
       "park_fountain": "Đài phun nước",
       "park_play": "Cầu trượt sân chơi",
+      "crescent_shaft": "Thân tháp Vành Mây",
+      "crescent_podium": "Chân tháp Vành Mây",
+      "bundled_shaft": "Thân tháp Nhịp Trời",
+      "bundled_podium": "Chân tháp Nhịp Trời",
       "midrise_floor": "Tầng chung cư và văn phòng",
       "midrise_ground": "Tầng trệt và lối xuống hầm",
       "midrise_roof": "Mái kỹ thuật và sân phơi"

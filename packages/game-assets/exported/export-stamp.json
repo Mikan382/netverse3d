@@ -1,5 +1,5 @@
 {
-  "config": "7e59d87072532ce80cb0824cf2f1a938f28d9afd240b5578557d1f3fa0ee7a86",
+  "config": "74e94c55769981f81e01920213fc26be7e9837eee559c4c121b021b90861676d",
   "sources": {
     "character-base.blend": "d95d6a4244635eb30bb06af70a11946ba1091dce9676af811f9d910123f1b445",
     "clips.blend": "99383511e93e0cab91a401957c879dd4889c5ebd1c446689319f28de676cddfb",
@@ -18,6 +18,7 @@
     "parts-furniture.blend": "fded667995683536135f9729f025410fc5c28e0e761a5ed714a5f9949b8643f7",
     "parts-river.blend": "64a6045e4efd49ff7cab74ce5437c44edabca11ee8d5b85629d23555e03654c9",
     "parts-park.blend": "47aedefefb4f4ac77ae237833b06f54f5f705c0ff5ceb06f1f03d96a88e300c1",
+    "parts-landmark.blend": "47bb1d8dcb808f8050fa57f37320eeb549614d6e3ff5fff6e833e6d834048de7",
     "parts-midrise.blend": "3b6cf857349328c474fe63eca10e92ca113cee3b0abad60082b35a27de545f9c",
     "showcase-tim-neon.blend": "1c893d1ac8aefae926fd49d979500cfd2b8079cc837b472610afd96771ccdf70",
     "showcase-hem-mau.blend": "ee179c4903ccaafe17ac9898df5517b9d20351d3de1ae76b35b06bdcc3eab77e"
@@ -38,6 +39,7 @@
     "furniture-parts.glb": "f6b960480c79d71e4a61a3c497fd682ff97bbca7cb43bb2e5f8818c8c7e469a7",
     "river-parts.glb": "edbbd97194ae52b449500ef3db65b8b5045e0002ef8dc870351f856f53e365da",
     "park-parts.glb": "bdf375b09391bb006f96ed3262f78d187f94c6492e6f4fef4ccb3318d12af9a1",
+    "landmark-parts.glb": "e85993ab24c3c1cd4f3ea86d95c4d4b3922af09a639317935a6910ec7085d20c",
     "midrise-parts.glb": "27146411499d37d1e9410344bcac7c70d5530e3913465254f7aee83663bbed94",
     "showcase-tim-neon.glb": "2c5acfe482d39e88881cbea75257c054cafea21bd19a65356744b3d9b780e4d7",
     "showcase-tim-neon-base.jpg": "a5766f32c59ca74f54b2431a17acd0f067768e556289d33d964cd36837d4cec0",

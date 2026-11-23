@@ -219,6 +219,8 @@ Bộ ghép "Sông và cầu" trong `library/lab.html` tái hiện khúc sông d�
 
 `park-parts.glb` có ô 4 m cho cỏ, lối lát và bó viền, hai cỡ cây dùng hàng `trim` cho lá và `body` hoặc `soft` cho thân theo #224, bụi cây, bồn hoa, ghế đá, đèn thấp, thùng rác, cổng, đài phun và cầu trượt. Đài phun dùng hàng màu `body` như mặt nước của bộ sông, mặt nước tĩnh. `park-look.mjs` ghép nền từ 8 đến 16 m và đưa mẫu 16 m vào lab với nhân vật. Cổng có hai hộp va chạm riêng ở trụ để chừa lối đi giữa.
 
+`landmark-parts.glb` chứa hai tháp gợi hình của REQ-042. Vành Mây lấy cảm hứng từ dáng thuôn và sàn tròn nhô ngang. Nhịp Trời lấy cảm hứng từ nhóm thân cao thấp xếp bậc có chóp. Hình học, tên và chi tiết thuộc Netverse. Hai chân tháp gồm quảng trường, bậc và sảnh trước, với va chạm chặn thân đế. Thân lắp trên đế và có bản nhẹ từ 190 m. Phòng lab có bộ ghép tổng thể và hai bộ riêng để so chân tháp với nhân vật.
+
 `midrise-parts.glb` có tầng chung cư ban công và lồng phơi, tầng văn phòng băng kính, tầng trệt cửa hàng và lối xuống hầm, mái kỹ thuật và sân phơi. Module ngang và cao 4 m theo giao diện đã đề xuất ở #251. Bộ này đứng riêng trong lúc chờ `tower-parts.glb` để nhóm có thể kiểm mẫu tại lab. `midrise-look.mjs` lắp ba tòa 6, 9 và 12 tầng với nhịp mặt đứng và bộ màu khác nhau.
 
 ### Bầu trời đêm, sương và bản đồ môi trường ngoài trời

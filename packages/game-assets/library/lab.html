@@ -198,6 +198,8 @@
         <div class="list" id="riverList"></div>
         <h2>Công viên</h2>
         <div class="list" id="parkList"></div>
+        <h2>Tháp điểm nhấn</h2>
+        <div class="list" id="landmarkList"></div>
         <h2>Nhà tầm trung</h2>
         <div class="list" id="midriseList"></div>
         <h2>Ghép thử mối nối</h2>
@@ -492,6 +494,21 @@
           ['player', [-6, 0.4, -4.5], 0],
         ],
         'Công viên 16 m': PARK_EXHIBIT,
+        'Hai tháp điểm nhấn': [
+          ['crescent_podium_a', [-34, 0, 0], 0],
+          ['crescent_shaft_a', [-34, 4.45, 0], 0],
+          ['bundled_podium_a', [34, 0, 0], 0],
+          ['bundled_shaft_a', [34, 4.45, 0], 0],
+          ['player', [-34, 0.36, 18], Math.PI],
+        ],
+        'Chân tháp Vành Mây': [
+          ['crescent_podium_a', [0, 0, 0], 0],
+          ['player', [2, 0.36, 17.5], Math.PI],
+        ],
+        'Chân tháp Nhịp Trời': [
+          ['bundled_podium_a', [0, 0, 0], 0],
+          ['player', [2, 0.36, 20.5], Math.PI],
+        ],
         'Dãy nhà tầm trung': [
           ...MIDRISE_RECIPES.flatMap(midrisePlan),
           ['player', [0, 0, 6.4], Math.PI],
@@ -886,7 +903,13 @@
             midriseByPalette.set(recipeId, plan);
             continue;
           }
-          const clone = partClone(name);
+          const model = partClone(name);
+          const lod = state.selection.kind === 'set' ? slotOf[name]?.spec.lod : null;
+          const clone = lod ? new THREE.LOD() : model;
+          if (lod) {
+            clone.addLevel(model, 0);
+            clone.addLevel(partClone(`${name}_${lod.suffix}`), lod.distance, 0.05);
+          }
           clone.position.set(...position);
           clone.rotation.y = yaw;
           stageGroup.add(clone);
@@ -960,6 +983,7 @@
         const furniture = $('furnitureList');
         const river = $('riverList');
         const park = $('parkList');
+        const landmark = $('landmarkList');
         const midrise = $('midriseList');
         for (const [name, info] of Object.entries(slotOf)) {
           const button = document.createElement('button');
@@ -979,6 +1003,7 @@
               'furniture-parts.glb': furniture,
               'river-parts.glb': river,
               'park-parts.glb': park,
+              'landmark-parts.glb': landmark,
               'midrise-parts.glb': midrise,
             }[info.kit] ?? lounge;
           list.append(button);
