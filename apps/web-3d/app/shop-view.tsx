@@ -148,7 +148,15 @@ function ShopStage({ app }: { app: ReturnType<typeof createAppStore> }) {
           recipeId: pickRecipe(assets.ids, params.get('shop')),
           quality: 'medium',
           onStats: (stats) => store.dispatch(statsReported(stats)),
-          onState: (state) => store.dispatch(sceneChanged(state)),
+          onState: (state) => {
+            const theme = document.documentElement;
+            theme.dataset.uiQuality = state.quality;
+            const accent = assets.recipes[state.recipeId]?.palette.accent?.[0];
+            if (accent && /^#[\da-f]{6}$/i.test(accent))
+              theme.style.setProperty('--ui-accent', accent);
+            else theme.style.removeProperty('--ui-accent');
+            store.dispatch(sceneChanged(state));
+          },
           onError: (message) => store.dispatch(errorRaised(message)),
           onNearbySeat: (seatId) => store.dispatch(nearbySeatChanged(seatId)),
           onSeatRequest: (seatId, from) => {
