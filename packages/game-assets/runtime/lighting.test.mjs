@@ -10,6 +10,7 @@ import {
   STANDARD_BLOOM,
   isWithinEmissiveScale,
 } from './lighting.mjs';
+import * as lighting from './lighting.mjs';
 import { shopMaterials } from './three-shop.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -45,6 +46,126 @@ const RECIPE = {
     accent: ['#ff007f'],
   },
 };
+const PRESET_IDS = [
+  'studio',
+  'shop-neon',
+  'shop-dim',
+  'shop-warm',
+  'shop-daylight',
+  'street-night',
+  'showcase-baked',
+];
+const SHOP_LOOK_SCHEMA = readJson(join(ROOT, '../contracts/world/v1/shop-look.schema.json'));
+
+function fakeThree() {
+  class Color {
+    constructor(value) {
+      this.value = value;
+    }
+
+    set(value) {
+      this.value = value;
+    }
+  }
+
+  class Fog {
+    constructor(color, near, far) {
+      this.color = new Color(color);
+      this.near = near;
+      this.far = far;
+    }
+  }
+
+  class Light {
+    constructor(color, intensity, distance, decay) {
+      this.color = color;
+      this.intensity = intensity;
+      this.distance = distance;
+      this.decay = decay;
+      this.position = {
+        set: (x, y, z) => Object.assign(this.position, { x, y, z }),
+      };
+    }
+  }
+
+  class HemisphereLight extends Light {
+    constructor(sky, ground, intensity) {
+      super(sky, intensity);
+      this.ground = ground;
+    }
+  }
+
+  class DirectionalLight extends Light {}
+
+  class PointLight extends Light {}
+
+  class CanvasTexture {
+    constructor(canvas) {
+      this.canvas = canvas;
+    }
+  }
+
+  class PMREMGenerator {
+    constructor() {
+      this.targets = [];
+    }
+
+    fromScene() {
+      const target = {
+        texture: { isEnvironment: true },
+        disposed: false,
+        dispose() {
+          this.disposed = true;
+        },
+      };
+      this.targets.push(target);
+      return target;
+    }
+
+    fromEquirectangular() {
+      return this.fromScene();
+    }
+
+    dispose() {
+      this.disposed = true;
+    }
+  }
+
+  return {
+    ACESFilmicToneMapping: 'aces',
+    EquirectangularReflectionMapping: 'equirectangular',
+    PMREMGenerator,
+    SRGBColorSpace: 'srgb',
+    CanvasTexture,
+    Color,
+    DirectionalLight,
+    Fog,
+    HemisphereLight,
+    PointLight,
+  };
+}
+
+function fakeCanvas() {
+  return {
+    getContext: () => ({
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      fillRect: () => {},
+      fillStyle: null,
+    }),
+  };
+}
+
+function fakeScene() {
+  return {
+    children: [],
+    add(...objects) {
+      this.children.push(...objects);
+    },
+    remove(object) {
+      this.children = this.children.filter((child) => child !== object);
+    },
+  };
+}
 
 test('thang phát sáng định nghĩa đủ các loại nguồn phát sáng theo chuẩn ADR-0019', () => {
   const expectedTypes = [
@@ -112,6 +233,245 @@ test('cấu hình assets.config.json đăng ký thang phát sáng và mức bloo
     LIGHT_BUDGET.maxDynamicLightsPerBlock,
   );
   assert.equal(CONFIG.lighting.budget.bakeBouncedLight, LIGHT_BUDGET.bakeBouncedLight);
+});
+
+test('bảy bộ ánh sáng có đủ trường của chuẩn dựng hình', () => {
+  const presets = lighting.LIGHTING_PRESETS ?? {};
+  assert.deepEqual(Object.keys(presets).sort(), [...PRESET_IDS].sort());
+  for (const [id, preset] of Object.entries(presets)) {
+    assert.equal(preset.id, id);
+    assert.ok(['indoor', 'outdoor', 'studio', 'baked'].includes(preset.kind));
+    assert.equal(preset.toneMapping, 'aces');
+    assert.equal(typeof preset.exposure, 'number');
+    assert.ok(preset.background === 'night-sky' || /^#[0-9a-f]{6}$/i.test(preset.background));
+    assert.ok(['room', 'night-sky', 'none'].includes(preset.environment?.source));
+    assert.equal(typeof preset.environment.intensity, 'number');
+    assert.equal(typeof preset.environment.blur, 'number');
+    assert.ok(
+      preset.fog === null ||
+        (typeof preset.fog.color === 'string' &&
+          typeof preset.fog.near === 'number' &&
+          typeof preset.fog.far === 'number'),
+    );
+    assert.ok(
+      preset.hemisphere === null ||
+        (typeof preset.hemisphere.sky === 'string' &&
+          typeof preset.hemisphere.ground === 'string' &&
+          typeof preset.hemisphere.intensity === 'number'),
+    );
+    assert.ok(Array.isArray(preset.directional));
+    assert.ok(Array.isArray(preset.points));
+    assert.ok(
+      preset.directional.every(
+        (light) =>
+          typeof light.color === 'string' &&
+          typeof light.intensity === 'number' &&
+          Array.isArray(light.position) &&
+          light.position.length === 3,
+      ),
+    );
+    assert.ok(
+      preset.points.every(
+        (light) =>
+          typeof light.color === 'string' &&
+          typeof light.intensity === 'number' &&
+          typeof light.distance === 'number' &&
+          typeof light.decay === 'number' &&
+          (light.placement === 'room-corners' || Array.isArray(light.placement)),
+      ),
+    );
+    assert.equal(typeof preset.bloom.strength, 'number');
+    assert.equal(typeof preset.bloom.radius, 'number');
+    assert.equal(typeof preset.bloom.threshold, 'number');
+  }
+});
+
+test('lightingFor ánh xạ enum tiệm và báo lỗi với bộ không biết', () => {
+  assert.equal(typeof lighting.lightingFor, 'function');
+  assert.equal(lighting.lightingFor('neon').id, 'shop-neon');
+  assert.throws(
+    () => lighting.lightingFor('unknown'),
+    (error) => {
+      assert.ok(error instanceof RangeError);
+      assert.match(error.message, /unknown/);
+      return true;
+    },
+  );
+});
+
+test('mọi giá trị enum lighting của hợp đồng tiệm ánh xạ được', () => {
+  assert.equal(typeof lighting.lightingFor, 'function');
+  for (const value of SHOP_LOOK_SCHEMA.properties.lighting.enum) {
+    assert.ok(lighting.lightingFor(value), `Thiếu preset cho enum ${value}`);
+  }
+});
+
+test('createBloomPass khởi tạo thông số bloom từ preset được đặt tên', () => {
+  const args = [];
+  class FakeBloomPass {
+    constructor(...values) {
+      args.push(...values);
+    }
+  }
+  const pass = lighting.createBloomPass(THREE, FakeBloomPass, 'shop-neon');
+  assert.ok(pass instanceof FakeBloomPass);
+  assert.deepEqual(args[0].toArray(), [1, 1]);
+  assert.deepEqual(args.slice(1), [
+    lighting.LIGHTING_PRESETS['shop-neon'].bloom.strength,
+    lighting.LIGHTING_PRESETS['shop-neon'].bloom.radius,
+    lighting.LIGHTING_PRESETS['shop-neon'].bloom.threshold,
+  ]);
+});
+
+test('ngưỡng bloom của mọi preset khớp chuẩn chung', () => {
+  const presets = lighting.LIGHTING_PRESETS ?? {};
+  for (const preset of Object.values(presets)) {
+    assert.equal(preset.bloom.threshold, STANDARD_BLOOM.threshold, preset.id);
+  }
+});
+
+test('applyLighting đặt hai đèn shop-neon ở góc phòng và giữ đúng chiều cao', () => {
+  const THREE = fakeThree();
+  const scene = fakeScene();
+  const renderer = {};
+  const bloomPass = {};
+  const handle = lighting.applyLighting(THREE, {
+    scene,
+    renderer,
+    bloomPass,
+    preset: 'shop-neon',
+    room: { width: 8, depth: 6 },
+    RoomEnvironment: class {},
+  });
+  const hemisphere = scene.children.filter((light) => light instanceof THREE.HemisphereLight);
+  const points = scene.children.filter((light) => light instanceof THREE.PointLight);
+  assert.equal(hemisphere.length, 1);
+  assert.equal(points.length, 2);
+  assert.deepEqual(
+    points.map(({ position }) => [position.x, position.y, position.z]),
+    [
+      [-7.5, 2.6, 5.5],
+      [7.5, 2.6, -5.5],
+    ],
+  );
+  assert.equal(renderer.toneMapping, THREE.ACESFilmicToneMapping);
+  assert.equal(renderer.outputColorSpace, THREE.SRGBColorSpace);
+  assert.equal(bloomPass.strength, lighting.LIGHTING_PRESETS['shop-neon'].bloom.strength);
+  assert.equal(bloomPass.radius, lighting.LIGHTING_PRESETS['shop-neon'].bloom.radius);
+  assert.equal(bloomPass.threshold, STANDARD_BLOOM.threshold);
+  assert.ok(scene.environment.isEnvironment);
+  assert.equal(handle.preset.id, 'shop-neon');
+});
+
+test('applyLighting đặt đèn theo tọa độ placement tùy chỉnh', () => {
+  const scene = new THREE.Scene();
+  const preset = {
+    ...lighting.LIGHTING_PRESETS['shop-neon'],
+    environment: { source: 'none', intensity: 0, blur: 0 },
+    points: [
+      {
+        ...lighting.LIGHTING_PRESETS['shop-neon'].points[0],
+        placement: [3, 4, 5],
+      },
+    ],
+  };
+  const handle = lighting.applyLighting(THREE, { scene, renderer: {}, preset });
+  const point = scene.children.find((light) => light.isPointLight);
+  assert.deepEqual(point.position.toArray(), [3, 4, 5]);
+  handle.dispose();
+});
+
+test('applyLighting đổi bộ ánh sáng mà không nhân đôi đèn trong cảnh', () => {
+  const THREE = fakeThree();
+  const scene = fakeScene();
+  const renderer = {};
+  const handle = lighting.applyLighting(THREE, {
+    scene,
+    renderer,
+    preset: 'shop-neon',
+    room: { width: 8, depth: 6 },
+    RoomEnvironment: class {},
+  });
+  handle.update('shop-dim');
+  const points = scene.children.filter((light) => light instanceof THREE.PointLight);
+  assert.equal(scene.children.length, 3);
+  assert.equal(points.length, 2);
+  assert.deepEqual(
+    points.map((light) => light.intensity),
+    [5, 5],
+  );
+  assert.equal(handle.preset.id, 'shop-dim');
+  assert.equal(renderer.toneMappingExposure, 0.9);
+  handle.update({ environment: { intensity: 0.2 } });
+  assert.equal(scene.environmentIntensity, 0.2);
+  handle.setExposure(0.75);
+  assert.equal(renderer.toneMappingExposure, 0.75);
+});
+
+test('applyLighting dispose gỡ đèn và giải phóng mục tiêu PMREM', () => {
+  const THREE = fakeThree();
+  const scene = fakeScene();
+  const pmrem = new THREE.PMREMGenerator();
+  const handle = lighting.applyLighting(THREE, {
+    scene,
+    renderer: {},
+    preset: 'shop-neon',
+    room: { width: 8, depth: 6 },
+    RoomEnvironment: class {},
+    pmrem,
+  });
+  const target = pmrem.targets[0];
+  handle.dispose();
+  assert.equal(scene.children.length, 0);
+  assert.equal(target.disposed, true);
+  assert.equal(pmrem.disposed, undefined);
+});
+
+test('applyLighting dùng lại môi trường studio được chia sẻ mà không giải phóng nó', () => {
+  const THREE = fakeThree();
+  const sourceScene = fakeScene();
+  const source = lighting.applyLighting(THREE, {
+    scene: sourceScene,
+    renderer: {},
+    preset: 'studio',
+    RoomEnvironment: class {},
+  });
+  const sharedEnvironment = source.envTexture;
+  const sourceTarget = source.pmrem.targets[0];
+  const cardScene = fakeScene();
+  const card = lighting.applyLighting(THREE, {
+    scene: cardScene,
+    renderer: {},
+    preset: 'studio',
+    environmentTexture: sharedEnvironment,
+  });
+  assert.equal(cardScene.environment, sharedEnvironment);
+  assert.equal(card.envTexture, sharedEnvironment);
+  assert.equal(card.pmrem, null);
+  card.dispose();
+  assert.equal(cardScene.environment, null);
+  assert.equal(sharedEnvironment.disposed, undefined);
+  source.dispose();
+  assert.equal(sourceTarget.disposed, true);
+});
+
+test('applyLighting dựng sương và đèn trăng cho street-night', () => {
+  const THREE = fakeThree();
+  const scene = fakeScene();
+  const handle = lighting.applyLighting(THREE, {
+    scene,
+    renderer: {},
+    preset: 'street-night',
+    canvas: fakeCanvas(),
+  });
+  assert.equal(scene.fog.color.value, '#24193d');
+  assert.equal(scene.fog.near, 16);
+  assert.equal(scene.fog.far, 90);
+  assert.equal(handle.lights.filter((light) => light instanceof THREE.DirectionalLight).length, 1);
+  assert.equal(
+    handle.lights.find((light) => light instanceof THREE.DirectionalLight).intensity,
+    1.1,
+  );
 });
 
 test('shopMaterials tạo vật liệu phát sáng neon nằm trong thang EMISSIVE_SCALE.neon', () => {
