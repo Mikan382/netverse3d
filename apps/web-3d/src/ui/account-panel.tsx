@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { vi } from './text/vi.ts';
 import styles from './account-panel.module.css';
 
@@ -13,6 +13,7 @@ type Props = {
   actions: Actions;
   resend: (email: string) => Promise<unknown>;
   logout: () => Promise<void>;
+  children?: ReactNode;
 };
 
 const text = vi.account;
@@ -37,6 +38,7 @@ export default function AccountPanel({
   actions,
   resend,
   logout,
+  children,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
@@ -154,6 +156,7 @@ export default function AccountPanel({
             {checking ? text.checking : text.actions.login}
           </button>
         )}
+        {children}
       </div>
       <dialog
         ref={dialogRef}

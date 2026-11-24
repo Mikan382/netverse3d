@@ -1,4 +1,5 @@
-import { identityApi, IdentityError, type AccountProfile } from './identity-api.ts';
+import { ApiError } from './api-request.ts';
+import { identityApi, type AccountProfile } from './identity-api.ts';
 
 const STORAGE_KEY = 'netverse.identity.refresh';
 const RETRY_MS = 15000;
@@ -26,6 +27,7 @@ export function createIdentitySession() {
   let view = INITIAL;
   const listeners = new Set<() => void>();
   let refreshToken: string | null = null;
+  let accessToken: string | null = null;
   let expiresAt = 0;
   let revision = 0;
   let started = false;
@@ -49,6 +51,7 @@ export function createIdentitySession() {
   function forget(error: string | null = null) {
     revision += 1;
     remember(null);
+    accessToken = null;
     expiresAt = 0;
     publish({ ...SIGNED_OUT, error });
   }
@@ -57,9 +60,11 @@ export function createIdentitySession() {
     if (revision !== turn) return;
     remember(pair.refreshToken);
     const lifetime = pair.expiresIn * 1000;
-    expiresAt = Date.now() + lifetime;
+    const nextExpiration = Date.now() + lifetime;
     const profile = knownProfile ?? (await identityApi.profile(pair.accessToken));
     if (revision !== turn) return;
+    accessToken = pair.accessToken;
+    expiresAt = nextExpiration;
     publish({
       checking: false,
       profile,
@@ -77,7 +82,7 @@ export function createIdentitySession() {
       .then((pair) => accept(pair, turn, view.profile))
       .catch((error: unknown) => {
         if (revision !== turn) return;
-        const code = error instanceof IdentityError ? error.code : 'CLIENT.UNAVAILABLE';
+        const code = error instanceof ApiError ? error.code : 'CLIENT.UNAVAILABLE';
         if (ended.has(code)) {
           forget(code);
           return;
@@ -116,6 +121,17 @@ export function createIdentitySession() {
       else publish(SIGNED_OUT);
     },
     refresh,
+    async authorized<T>(subject: string, operation: (token: string) => Promise<T>): Promise<T> {
+      const turn = revision;
+      if (view.profile?.id !== subject) throw new ApiError('COMMON.UNAUTHENTICATED');
+      if (Date.now() >= expiresAt) await refresh();
+      if (!accessToken || Date.now() >= expiresAt || revision !== turn) {
+        throw new ApiError('COMMON.UNAUTHENTICATED');
+      }
+      const result = await operation(accessToken);
+      if (revision !== turn) throw new ApiError('COMMON.UNAUTHENTICATED');
+      return result;
+    },
     async login(email: string, password: string) {
       const turn = ++revision;
       const pair = await identityApi.login(email, password);

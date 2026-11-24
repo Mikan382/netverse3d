@@ -8,12 +8,11 @@ const nextConfig = {
   images: { unoptimized: true },
   ...(process.env.NODE_ENV === 'development'
     ? {
-        rewrites: async () => [
-          {
-            source: '/api/identity/:path*',
-            destination: `http://127.0.0.1:${process.env.GATEWAY_PORT ?? '58080'}/api/identity/:path*`,
-          },
-        ],
+        rewrites: async () =>
+          ['identity', 'notification'].map((service) => ({
+            source: `/api/${service}/:path*`,
+            destination: `http://127.0.0.1:${process.env.GATEWAY_PORT ?? '58080'}/api/${service}/:path*`,
+          })),
       }
     : {}),
 };
