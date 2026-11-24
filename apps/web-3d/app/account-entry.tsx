@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { identityApi } from '../src/net/identity-api.ts';
 import { createIdentitySession } from '../src/net/identity-session.ts';
+import { createInboxClient } from '../src/net/notification-inbox.ts';
 import AccountPanel from '../src/ui/account-panel.tsx';
+import InboxPanel from '../src/ui/inbox-panel.tsx';
 import { vi } from '../src/ui/text/vi.ts';
 
 export default function AccountEntry() {
@@ -12,6 +14,12 @@ export default function AccountEntry() {
     session.subscribe,
     session.snapshot,
     session.serverSnapshot,
+  );
+  const subject = profile?.id;
+  const inbox = useMemo(
+    () =>
+      subject ? createInboxClient((operation) => session.authorized(subject, operation)) : null,
+    [session, subject],
   );
 
   useEffect(() => session.restore(), [session]);
@@ -39,6 +47,8 @@ export default function AccountEntry() {
       }}
       resend={identityApi.resend}
       logout={session.logout}
-    />
+    >
+      {inbox && <InboxPanel key={subject} client={inbox} />}
+    </AccountPanel>
   );
 }

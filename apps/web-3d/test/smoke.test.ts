@@ -16,6 +16,7 @@ import { after, before, test, type TestContext } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { consoleErrorsOf, findChrome, launchChrome, sleep } from '../../../scripts/browser/cdp.mjs';
 import { identityCalls, serveIdentityFixture } from './identity-fixture.ts';
+import { deliverFixtureNotice, serveInboxFixture } from './inbox-fixture.ts';
 
 type StageState = Record<string, string>;
 
@@ -65,6 +66,10 @@ before(async () => {
     }
     if (request.url?.startsWith('/api/identity/v1/')) {
       void serveIdentityFixture(request, response);
+      return;
+    }
+    if (request.url?.startsWith('/api/notification/v1/inbox')) {
+      serveInboxFixture(request, response);
       return;
     }
     const file = fileFor(decodeURIComponent(request.url ?? '/'));
@@ -367,7 +372,7 @@ test('mất ngữ cảnh WebGL rồi khôi phục thì cảnh dựng lại, khô
   assert.deepEqual(page.consoleErrors, []);
 });
 
-test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại mật khẩu', async (context) => {
+test('đăng ký, xác minh, vào tiệm, đọc thông báo và đặt lại mật khẩu', async (context) => {
   if (!browserReady(context, false)) return;
   const realModels = !modelsArePointers();
   const page = await renderPage(
@@ -379,6 +384,11 @@ test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại m�
       const dialog = `document.querySelector('dialog[open]')`;
       const title = `${dialog}?.querySelector('h1')?.textContent`;
       const accountButton = `document.querySelector('[aria-label="Tài khoản"] button:not([disabled])')`;
+      const inbox = `document.querySelector('dialog[aria-labelledby="inbox-title"][open]')`;
+      const inboxButton = `document.querySelector('button[aria-label^="Thông báo"]')`;
+      const inboxAction = (label: string) =>
+        `[...(${inbox}?.querySelectorAll('button:not([disabled])') ?? [])].find(button => button.textContent === ${JSON.stringify(label)})`;
+      const unreadCount = `${inbox}?.querySelector('[role="status"]')?.textContent`;
 
       async function click(query: string) {
         await waitFor(query);
@@ -396,6 +406,9 @@ test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại m�
         await waitFor(`${title} === ${JSON.stringify(label)}`);
       }
       const email = 'player@example.test';
+
+      await waitFor(accountButton);
+      assert.equal(await browser.evaluate(`Boolean(${inboxButton})`), false);
 
       await click(accountButton);
       await heading('Đăng nhập');
@@ -425,9 +438,44 @@ test('đăng ký, xác minh, vào tiệm, tải lại trang và đặt lại m�
       await waitFor(
         `${accountButton}?.textContent === 'Đăng xuất' && sessionStorage.getItem('netverse.identity.refresh') === 'browser-test-refresh-3'`,
       );
+      await waitFor(`${inboxButton}?.ariaLabel === 'Thông báo, 2 chưa đọc'`);
+      await click(inboxButton);
+      await waitFor(
+        `${inbox}?.querySelector('[role="alert"]')?.textContent === 'Chưa tải được thông báo.'`,
+      );
+      await click(inboxAction('Thử lại'));
+      await waitFor(
+        `${inbox}?.querySelector('li h3')?.textContent === '<b>Thông báo mới nhất</b>'`,
+      );
+      assert.equal(
+        await browser.evaluate(`${inbox}.querySelector('li strong, li b') === null`),
+        true,
+      );
+      await click(inboxAction('Trang sau'));
+      await waitFor(`${inbox}?.querySelector('li h3')?.textContent === 'Thông báo cũ 1'`);
+      await click(inboxAction('Trang trước'));
+      await waitFor(
+        `${inbox}?.querySelector('li h3')?.textContent === '<b>Thông báo mới nhất</b>'`,
+      );
+      await click(inboxAction('Đánh dấu đã đọc'));
+      await waitFor(
+        `${unreadCount} === '1 chưa đọc' && ${inbox}?.querySelector('li')?.dataset.unread === 'false'`,
+      );
+      await click(inboxAction('Đọc tất cả'));
+      await waitFor(
+        `${unreadCount} === '0 chưa đọc' && !${inbox}?.querySelector('[data-unread="true"]')`,
+      );
+      deliverFixtureNotice();
+      await browser.evaluate(`document.dispatchEvent(new Event('visibilitychange'))`);
+      await waitFor(
+        `${unreadCount} === '1 chưa đọc' && ${inbox}?.querySelector('li h3')?.textContent === 'Thông báo vừa đến'`,
+      );
+      await click(`${inbox}?.querySelector('button[aria-label="Đóng thông báo"]')`);
+      await waitFor(`!${inbox}`);
       await click(accountButton);
       await heading('Đăng nhập');
       await waitFor(`sessionStorage.getItem('netverse.identity.refresh') === null`);
+      assert.equal(await browser.evaluate(`Boolean(${inboxButton})`), false);
       await browser.send('Page.reload');
       await waitFor(`${accountButton}?.textContent === 'Đăng nhập' && !${dialog}`);
       await click(accountButton);

@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  max-width: min(38vw, 320px);
+  max-width: min(48vw, 400px);
   font-size: var(--text-sm);
 }
 
@@ -167,5 +167,17 @@
     top: auto;
     bottom: var(--space-3);
     max-width: calc(100% - 2 * var(--space-3));
+  }
+
+  .accountName {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    clip-path: inset(50%);
+  }
+
+  .outline {
+    padding-inline: var(--space-2);
   }
 }

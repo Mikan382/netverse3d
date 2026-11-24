@@ -10,6 +10,13 @@ let verified = false;
 let generation = 0;
 let refreshToken = '';
 
+export function hasFixtureAccess(request: IncomingMessage) {
+  return (
+    Boolean(refreshToken) &&
+    request.headers.authorization === `Bearer browser-test-access-${generation}`
+  );
+}
+
 function tokens() {
   generation += 1;
   refreshToken = `browser-test-refresh-${generation}`;
